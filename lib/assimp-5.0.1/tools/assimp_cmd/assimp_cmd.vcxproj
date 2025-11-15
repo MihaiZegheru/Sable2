@@ -1,0 +1,403 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{5DB20D23-9CFB-38B3-B97D-EA81AEC7442D}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>assimp_cmd</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\Mihai\_MainAccess\C++\Game Engine\bin\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">assimp_cmd.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">assimpd</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\Mihai\_MainAccess\C++\Game Engine\bin\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">assimp_cmd.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">assimp</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\Mihai\_MainAccess\C++\Game Engine\bin\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">assimp_cmd.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">assimp</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\Mihai\_MainAccess\C++\Game Engine\bin\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">assimp_cmd.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">assimp</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\include;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\.;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\zlib;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;_DEBUG;EBUG:FULL;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;ASSIMP_BUILD_NO_C4D_IMPORTER;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;EBUG:FULL;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;ASSIMP_BUILD_NO_C4D_IMPORTER;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\include;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\.;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\zlib;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\include;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\.;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\zlib;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/Debug/assimp-vc142-mtd.lib" "C:/Users/Mihai/_MainAccess/C++/Game Engine/bin/Debug"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Link>
+      <AdditionalDependencies>..\..\..\Debug\assimp-vc142-mtd.lib;..\..\..\Debug\zlibstaticd.lib;..\..\..\Debug\IrrXMLd.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1;C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/$(Configuration);C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/lib;C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/Debug/assimpd.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/Mihai/_MainAccess/C++/Game Engine/bin/Debug/assimpd.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\include;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\.;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\zlib;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;ASSIMP_BUILD_NO_C4D_IMPORTER;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;ASSIMP_BUILD_NO_C4D_IMPORTER;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\include;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\.;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\zlib;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\include;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\.;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\zlib;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/Release/assimp-vc142-mt.lib" "C:/Users/Mihai/_MainAccess/C++/Game Engine/bin/Release"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Link>
+      <AdditionalDependencies>..\..\..\Release\assimp-vc142-mt.lib;..\..\..\Release\zlibstatic.lib;..\..\..\Release\IrrXML.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1;C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/$(Configuration);C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/lib;C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/Release/assimp.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/Mihai/_MainAccess/C++/Game Engine/bin/Release/assimp.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\include;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\.;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\zlib;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;ASSIMP_BUILD_NO_C4D_IMPORTER;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;ASSIMP_BUILD_NO_C4D_IMPORTER;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\include;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\.;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\zlib;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\include;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\.;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\zlib;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/MinSizeRel/assimp-vc142-mt.lib" "C:/Users/Mihai/_MainAccess/C++/Game Engine/bin/MinSizeRel"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Link>
+      <AdditionalDependencies>..\..\..\MinSizeRel\assimp-vc142-mt.lib;..\..\..\MinSizeRel\zlibstatic.lib;..\..\..\MinSizeRel\IrrXML.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1;C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/$(Configuration);C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/lib;C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/MinSizeRel/assimp.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/Mihai/_MainAccess/C++/Game Engine/bin/MinSizeRel/assimp.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\include;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\.;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\zlib;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;ASSIMP_BUILD_NO_C4D_IMPORTER;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;ASSIMP_BUILD_NO_C4D_IMPORTER;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\include;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\.;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\zlib;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\include;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\.;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\zlib;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd;C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/RelWithDebInfo/assimp-vc142-mt.lib" "C:/Users/Mihai/_MainAccess/C++/Game Engine/bin/RelWithDebInfo"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Link>
+      <AdditionalDependencies>..\..\..\RelWithDebInfo\assimp-vc142-mt.lib;..\..\..\RelWithDebInfo\zlibstatic.lib;..\..\..\RelWithDebInfo\IrrXML.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1;C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/$(Configuration);C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/lib;C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/RelWithDebInfo/assimp.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/Mihai/_MainAccess/C++/Game Engine/bin/RelWithDebInfo/assimp.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/tools/assimp_cmd/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/Mihai/_MainAccess/C++/Game Engine" "-BC:/Users/Mihai/_MainAccess/C++/Game Engine" --check-stamp-file "C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/tools/assimp_cmd/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/tools/assimp_cmd/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/Mihai/_MainAccess/C++/Game Engine" "-BC:/Users/Mihai/_MainAccess/C++/Game Engine" --check-stamp-file "C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/tools/assimp_cmd/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/tools/assimp_cmd/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/Mihai/_MainAccess/C++/Game Engine" "-BC:/Users/Mihai/_MainAccess/C++/Game Engine" --check-stamp-file "C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/tools/assimp_cmd/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/tools/assimp_cmd/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/Mihai/_MainAccess/C++/Game Engine" "-BC:/Users/Mihai/_MainAccess/C++/Game Engine" --check-stamp-file "C:/Users/Mihai/_MainAccess/C++/Game Engine/lib/assimp-5.0.1/tools/assimp_cmd/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd\assimp_cmd.rc" />
+    <ClCompile Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd\CompareDump.cpp" />
+    <ClCompile Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd\ImageExtractor.cpp" />
+    <ClCompile Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd\Main.cpp" />
+    <ClInclude Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd\Main.h" />
+    <ClInclude Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd\resource.h" />
+    <ClCompile Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd\WriteDumb.cpp" />
+    <ClCompile Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd\Info.cpp" />
+    <ClCompile Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\tools\assimp_cmd\Export.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\ZERO_CHECK.vcxproj">
+      <Project>{E96F5736-D0D9-3245-8929-91A7354D98B1}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\irrXML\IrrXML.vcxproj">
+      <Project>{2632DBF4-1391-3C8F-8183-53512EDC65F5}</Project>
+      <Name>IrrXML</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\code\assimp.vcxproj">
+      <Project>{F433B58A-1611-36F9-85B1-32158615DD80}</Project>
+      <Name>assimp</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\zlib\zlibstatic.vcxproj">
+      <Project>{FC26B0D7-0D5B-3CB3-9AE5-F4A4F131943B}</Project>
+      <Name>zlibstatic</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

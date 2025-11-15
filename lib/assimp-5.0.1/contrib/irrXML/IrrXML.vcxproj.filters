@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\irrXML\irrXML.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\irrXML\CXMLReaderImpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\irrXML\heapsort.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\irrXML\irrArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\irrXML\irrString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\irrXML\irrTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\irrXML\irrXML.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Mihai\_MainAccess\C++\Game Engine\lib\assimp-5.0.1\contrib\irrXML\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{E5B53F54-35C8-3DC1-9045-8AE539C6D13C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{946A6742-093C-3664-9A52-05EB67A0C786}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
