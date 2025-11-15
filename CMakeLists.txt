@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 project(Sable)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
+
+# Disable Assimp tests and tools (incompatible with C++23)
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
 
 # Define PROJECT_SOURCE_DIR and ABSOLUTE_RESOURCE_DIR for use in the code
 file(TO_CMAKE_PATH "${CMAKE_SOURCE_DIR}/src" PROJECT_SOURCE_DIR)
