@@ -87,6 +87,129 @@ void TestArchetype() {
 	std::cout << "=== All Archetype Tests Passed! ===" << std::endl << std::endl;
 }
 
+void TestArchetypeErrors() {
+	std::cout << "=== Testing Archetype Error Handling ===" << std::endl;
+
+	// Test 1: Constructor with mismatched sizes and types
+	std::cout << "Test: Constructor with size/type mismatch...";
+	try {
+		Core::ArchetypeSignature sig;
+		sig.set(0);
+		std::vector<size_t> sizes = {sizeof(Position)};
+		std::vector<Core::AttributeType> types = {0, 1}; // Mismatch!
+		Core::Archetype archetype(sig, sizes, types);
+		std::cerr << " FAILED - No exception thrown!" << std::endl;
+		assert(false);
+	} catch (const std::runtime_error& e) {
+		std::cout << " PASSED - Caught: " << e.what() << std::endl;
+	}
+
+	// Test 2: Constructor with entity stride exceeding chunk size
+	std::cout << "Test: Constructor with stride exceeding chunk size...";
+	try {
+		Core::ArchetypeSignature sig;
+		sig.set(0);
+		std::vector<size_t> sizes = {Core::kChunkSize + 1}; // Too large!
+		std::vector<Core::AttributeType> types = {0};
+		Core::Archetype archetype(sig, sizes, types);
+		std::cerr << " FAILED - No exception thrown!" << std::endl;
+		assert(false);
+	} catch (const std::runtime_error& e) {
+		std::cout << " PASSED - Caught: " << e.what() << std::endl;
+	}
+
+	// Test 3: GetAttribute for non-existent entity
+	std::cout << "Test: GetAttribute for non-existent entity...";
+	try {
+		Core::ArchetypeSignature sig;
+		sig.set(0);
+		std::vector<size_t> sizes = {sizeof(Position)};
+		std::vector<Core::AttributeType> types = {0};
+		Core::Archetype archetype(sig, sizes, types);
+
+		Core::EntityID non_existent = 999;
+		archetype.GetAttribute(non_existent, 0);
+		std::cerr << " FAILED - No exception thrown!" << std::endl;
+		assert(false);
+	} catch (const std::runtime_error& e) {
+		std::cout << " PASSED - Caught: " << e.what() << std::endl;
+	}
+
+	// Test 4: GetAttribute for non-existent attribute type
+	std::cout << "Test: GetAttribute for non-existent attribute type...";
+	try {
+		Core::ArchetypeSignature sig;
+		sig.set(0);
+		std::vector<size_t> sizes = {sizeof(Position)};
+		std::vector<Core::AttributeType> types = {0};
+		Core::Archetype archetype(sig, sizes, types);
+
+		Core::EntityID entity = 100;
+		archetype.AddEntity(entity);
+		archetype.GetAttribute(entity, 99); // Non-existent attribute type
+		std::cerr << " FAILED - No exception thrown!" << std::endl;
+		assert(false);
+	} catch (const std::runtime_error& e) {
+		std::cout << " PASSED - Caught: " << e.what() << std::endl;
+	}
+
+	// Test 5: RemoveEntity for non-existent entity
+	std::cout << "Test: RemoveEntity for non-existent entity...";
+	try {
+		Core::ArchetypeSignature sig;
+		sig.set(0);
+		std::vector<size_t> sizes = {sizeof(Position)};
+		std::vector<Core::AttributeType> types = {0};
+		Core::Archetype archetype(sig, sizes, types);
+
+		Core::EntityID non_existent = 999;
+		archetype.RemoveEntity(non_existent);
+		std::cerr << " FAILED - No exception thrown!" << std::endl;
+		assert(false);
+	} catch (const std::runtime_error& e) {
+		std::cout << " PASSED - Caught: " << e.what() << std::endl;
+	}
+
+	// Test 6: SetAttribute for non-existent entity
+	std::cout << "Test: SetAttribute for non-existent entity...";
+	try {
+		Core::ArchetypeSignature sig;
+		sig.set(0);
+		std::vector<size_t> sizes = {sizeof(Position)};
+		std::vector<Core::AttributeType> types = {0};
+		Core::Archetype archetype(sig, sizes, types);
+
+		Core::EntityID non_existent = 999;
+		Position pos(1.0f, 2.0f, 3.0f);
+		archetype.SetAttribute(non_existent, 0, pos);
+		std::cerr << " FAILED - No exception thrown!" << std::endl;
+		assert(false);
+	} catch (const std::runtime_error& e) {
+		std::cout << " PASSED - Caught: " << e.what() << std::endl;
+	}
+
+	// Test 7: SetAttribute for non-existent attribute type
+	std::cout << "Test: SetAttribute for non-existent attribute type...";
+	try {
+		Core::ArchetypeSignature sig;
+		sig.set(0);
+		std::vector<size_t> sizes = {sizeof(Position)};
+		std::vector<Core::AttributeType> types = {0};
+		Core::Archetype archetype(sig, sizes, types);
+
+		Core::EntityID entity = 100;
+		archetype.AddEntity(entity);
+		Position pos(1.0f, 2.0f, 3.0f);
+		archetype.SetAttribute(entity, 99, pos); // Non-existent attribute type
+		std::cerr << " FAILED - No exception thrown!" << std::endl;
+		assert(false);
+	} catch (const std::runtime_error& e) {
+		std::cout << " PASSED - Caught: " << e.what() << std::endl;
+	}
+
+	std::cout << "=== All Error Handling Tests Passed! ===" << std::endl << std::endl;
+}
+
 int main() {
 	try {
 		// Test EntityManager
@@ -102,6 +225,9 @@ int main() {
 
 		// Test Archetype
 		TestArchetype();
+
+		// Test Error Handling
+		TestArchetypeErrors();
 
 		std::cout << "All tests completed successfully!" << std::endl;
 	} catch (const std::exception& e) {

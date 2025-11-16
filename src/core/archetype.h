@@ -27,9 +27,10 @@ public:
 	size_t AddEntity(EntityID entity_id);
 	// Removes an entity from the archetype.
 	void RemoveEntity(EntityID entity_id);
-
-	IAttribute& GetAttribute(EntityID entity_id,
-																   AttributeType attribute_type);
+	
+	// Retrieves a reference to the attribute of the specified type for the given entity.
+	IAttribute& GetAttribute(EntityID entity_id, AttributeType attribute_type);
+	// Sets the attribute of the specified type for the given entity.
 	void SetAttribute(EntityID entity_id, AttributeType attribute_type, IAttribute& attribute);
 
 private:
