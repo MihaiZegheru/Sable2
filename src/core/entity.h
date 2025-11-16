@@ -1,7 +1,7 @@
 #ifndef CORE_ENTITY_H
 #define CORE_ENTITY_H
 
-#include <cstdint>
+#include "types.h"
 
 namespace Core {
 
@@ -13,10 +13,10 @@ struct Entity {
 	friend class Core::EntityManager;
 
 	// Underlying ID of the entity.
-	uint16_t id;
+	EntityID id;
 
 private:
-	explicit Entity(uint16_t entity_id) : id(entity_id) {}
+	explicit Entity(EntityID entity_id) : id(entity_id) {}
 	Entity() = delete;
 };
 } // namespace Core

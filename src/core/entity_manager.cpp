@@ -4,10 +4,12 @@
 #include <limits>
 #include <string>
 
+#include "types.h"
+
 namespace Core {
 
 EntityManager::EntityManager() {
-	for (uint16_t id = 0; id < std::numeric_limits<uint16_t>::max(); ++id) {
+	for (EntityID id = 0; id < std::numeric_limits<EntityID>::max(); ++id) {
 		available_entities_.push(Entity(id));
 	}
 }
