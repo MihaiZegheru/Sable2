@@ -1,5 +1,6 @@
 add_library(core STATIC
 	archetype.cpp
+	archetype_manager.cpp
 	entity_manager.cpp
 )
 

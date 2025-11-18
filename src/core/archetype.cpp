@@ -42,6 +42,7 @@ size_t Archetype::AddEntity(EntityID entity_id) {
 	return index;
 }
 
+// Swaps with the last entity to maintain contiguity.
 void Archetype::RemoveEntity(EntityID entity_id) {
 	auto it = entity_to_index_.find(entity_id);
 	if (it == entity_to_index_.end()) {

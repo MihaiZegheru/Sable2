@@ -33,6 +33,14 @@ public:
 	// Sets the attribute of the specified type for the given entity.
 	void SetAttribute(EntityID entity_id, AttributeType attribute_type, IAttribute& attribute);
 
+	// Iterates over all entities in the archetype, applying the provided function.
+	template<typename Func>
+	void ForEach(Func&& func) {
+		for (size_t i = 0; i < entities_.size(); ++i) {
+			func(entities_[i], i);
+		}
+	}
+
 private:
 	// Signature representing the set of attributes for this archetype.
 	ArchetypeSignature signature_;
@@ -52,12 +60,13 @@ private:
 	size_t entities_per_chunk_;
 	// List of entities in this archetype.
 	std::vector<EntityID> entities_;
-
+	// Map from entity ID to its index within the archetype.
 	std::unordered_map<EntityID, size_t> entity_to_index_;
 
+	// Data chunks storing entity attribute data. Each entity has its own block in the chunk where
+	// all its attributes are stored contiguously. An entity block will not be split across multiple
+	// chunks.
 	std::vector<std::unique_ptr<uint8_t[]>> chunks_;
-
-
 };
 } // namespace Core
 
