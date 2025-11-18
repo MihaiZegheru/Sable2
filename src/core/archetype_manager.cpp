@@ -1,6 +1,7 @@
 #include "archetype_manager.h"
 
 #include <functional>
+#include <memory>
 #include <optional>
 #include <stdexcept>
 #include <vector>
@@ -13,6 +14,7 @@ namespace Core {
 // Create an empty archetype for entities with no attributes.
 ArchetypeManager::ArchetypeManager() {
 	ArchetypeSignature empty_signature;
+	empty_signature.reset();
 	signature_to_archetypes_[empty_signature] = std::make_unique<Archetype>(
 													empty_signature,
 													std::vector<size_t>{},
@@ -57,22 +59,25 @@ void ArchetypeManager::AddEntity(EntityID entity_id, const ArchetypeSignature& s
 	entity_to_archetype_.insert({entity_id, archetype});
 }
 
-void ArchetypeManager::RemoveEntity(EntityID entity_id, const ArchetypeSignature& signature) {
+void ArchetypeManager::RemoveEntity(EntityID entity_id) {
 
 	// TODO: We may want to free up archetypes if they become empty.
 
-	auto it = signature_to_archetypes_.find(signature);
-	if (it == signature_to_archetypes_.end()) {
+	auto it = entity_to_archetype_.find(entity_id);
+	if (it == entity_to_archetype_.end()) {
 		throw std::runtime_error("Archetype with given signature does not exist.");
 	}
-	it->second->RemoveEntity(entity_id);
+	it->second.get().RemoveEntity(entity_id);
 	entity_to_archetype_.erase(entity_id);
 }
 
 void ArchetypeManager::UpdateEntityArchetype(EntityID entity_id,
-		const ArchetypeSignature& old_signature,
 		const ArchetypeSignature& new_signature) {
-	RemoveEntity(entity_id, old_signature);
+	auto it = entity_to_archetype_.find(entity_id);
+	if (it != entity_to_archetype_.end()) {
+		it->second.get().RemoveEntity(entity_id);
+		entity_to_archetype_.erase(entity_id);
+	}
 	AddEntity(entity_id, new_signature);
 }
 

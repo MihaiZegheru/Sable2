@@ -3,6 +3,8 @@
 
 #include "core/entity_manager.h"
 #include "core/archetype.h"
+#include "core/types.h"
+#include "core/ecs_manager.h"
 
 // Test attribute types
 struct Position : Core::IAttribute {
@@ -210,30 +212,185 @@ void TestArchetypeErrors() {
 	std::cout << "=== All Error Handling Tests Passed! ===" << std::endl << std::endl;
 }
 
+void TestArchetypeManager() {
+    using namespace Core;
+    std::cout << "=== Testing ArchetypeManager ===" << std::endl;
+
+    ArchetypeManager& manager = ECSManager::GetInstance().GetArchetypeManager();
+    std::cout << "Singleton retrieved successfully." << std::endl;
+
+    // Register attribute types
+    manager.RegisterAttributeType(0, sizeof(Position));
+    std::cout << "Registered Position attribute." << std::endl;
+    manager.RegisterAttributeType(1, sizeof(Velocity));
+    std::cout << "Registered Velocity attribute." << std::endl;
+
+    // Create a valid signature
+    ArchetypeSignature sig;
+    sig.set(0); // Position
+    sig.set(1); // Velocity
+    std::cout << "Created archetype signature." << std::endl;
+
+    // Add entity
+    EntityID entity = 42;
+    manager.AddEntity(entity, sig);
+    std::cout << "Added entity with ID: " << entity << std::endl;
+
+    // Set and get attribute
+    Position pos(1.0f, 2.0f, 3.0f);
+    manager.SetAttribute(entity, 0, pos);
+    std::cout << "Set Position attribute for entity." << std::endl;
+    auto attr = manager.GetAttribute(entity, 0);
+    assert(attr.has_value());
+    Position& pos_ref = static_cast<Position&>(attr->get());
+    assert(pos_ref.x == 1.0f && pos_ref.y == 2.0f && pos_ref.z == 3.0f);
+    std::cout << "Verified Position attribute for entity." << std::endl;
+
+    // Update entity archetype
+    ArchetypeSignature sig2;
+    sig2.set(0); // Only Position
+    manager.UpdateEntityArchetype(entity, sig2);
+    std::cout << "Updated entity archetype." << std::endl;
+
+    // Remove entity
+    manager.RemoveEntity(entity);
+    std::cout << "Removed entity." << std::endl;
+    auto attr2 = manager.GetAttribute(entity, 0);
+    assert(!attr2.has_value());
+    std::cout << "Verified entity removal." << std::endl;
+
+    // Error: Remove non-existent entity
+    try {
+        manager.RemoveEntity(9999);
+        std::cerr << "FAILED: No exception for removing non-existent entity!" << std::endl;
+        assert(false);
+    } catch (const std::runtime_error&) {
+        std::cout << "PASSED: Exception thrown for removing non-existent entity." << std::endl;
+    }
+
+    std::cout << "=== ArchetypeManager Tests Passed ===" << std::endl << std::endl;
+}
+
+void TestECSManager() {
+    using namespace Core;
+    std::cout << "=== Testing ECSManager ===" << std::endl;
+
+    try {
+        // Access ECSManager singleton
+        ECSManager& ecs_manager = ECSManager::GetInstance();
+        std::cout << "ECSManager singleton retrieved successfully." << std::endl;
+
+        // Test ArchetypeManager retrieval
+        ArchetypeManager& archetype_manager = ecs_manager.GetArchetypeManager();
+        std::cout << "ArchetypeManager retrieved successfully." << std::endl;
+
+        // Test EntityManager retrieval
+        EntityManager& entity_manager = ecs_manager.GetEntityManager();
+        std::cout << "EntityManager retrieved successfully." << std::endl;
+
+        // Add additional ECSManager-specific tests here
+
+        std::cout << "=== ECSManager Tests Passed ===" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "ECSManager test failed with exception: " << e.what() << std::endl;
+        assert(false);
+    }
+}
+
+// Define a proper attribute that inherits from IAttribute
+struct IntAttribute : Core::IAttribute {
+    int value;
+    IntAttribute(int v) : value(v) {}
+};
+
+void TestECSManagerFunctions() {
+    using namespace Core;
+    std::cout << "=== Testing ECSManager Functions ===" << std::endl;
+
+    try {
+        // Access ECSManager singleton
+        ECSManager& ecs_manager = ECSManager::GetInstance();
+        std::cout << "ECSManager singleton retrieved successfully." << std::endl;
+
+        // Test RegisterAttribute
+        ecs_manager.RegisterAttribute<IntAttribute>();
+        std::cout << "Attribute registered successfully." << std::endl;
+
+        // Test AddAttribute
+        Entity entity = ecs_manager.CreateEntity();
+        std::cout << "Entity created with ID: " << entity.id << std::endl;
+
+        IntAttribute int_attr(42);
+        ecs_manager.AddAttribute(entity, int_attr); // Add an IntAttribute
+        std::cout << "Attribute added to entity successfully." << std::endl;
+
+        // Test GetAttribute
+        IntAttribute& retrieved_attr = ecs_manager.GetAttribute<IntAttribute>(entity);
+        assert(retrieved_attr.value == 42);
+        std::cout << "Attribute retrieved successfully: " << retrieved_attr.value << std::endl;
+
+        // Test RemoveAttribute
+        ecs_manager.RemoveAttribute<IntAttribute>(entity);
+        std::cout << "Attribute removed successfully." << std::endl;
+
+        // Test DestroyEntity
+        ecs_manager.DestroyEntity(entity);
+        std::cout << "Entity destroyed successfully." << std::endl;
+
+        std::cout << "=== All ECSManager Function Tests Passed ===" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "ECSManager function test failed with exception: " << e.what() << std::endl;
+        assert(false);
+    }
+}
+
+// Call the test function in main
 int main() {
-	try {
-		// Test EntityManager
-		std::cout << "=== Testing EntityManager ===" << std::endl;
-		Core::EntityManager entity_manager;
-		auto entity = entity_manager.CreateEntity();
-		if (!entity) {
-			std::cerr << "Failed to create entity!" << std::endl;
-			return 1;
-		}
-		std::cout << "Created entity with ID: " << entity->id << std::endl;
-		std::cout << "=== EntityManager Tests Passed! ===" << std::endl << std::endl;
+    try {
+        TestECSManagerFunctions();
+        TestECSManager();
 
-		// Test Archetype
-		TestArchetype();
+        // Test EntityManager
+        std::cout << "=== Testing EntityManager ===" << std::endl;
+        Core::EntityManager& entity_manager = Core::ECSManager::GetInstance().GetEntityManager();
+        auto entity = entity_manager.CreateEntity();
+        if (!entity) {
+            std::cerr << "Failed to create entity!" << std::endl;
+            return 1;
+        }
+        std::cout << "Created entity with ID: " << entity->id << std::endl;
+        std::cout << "=== EntityManager Tests Passed! ===" << std::endl << std::endl;
 
-		// Test Error Handling
-		TestArchetypeErrors();
+        // Test Archetype Manager
+        std::cout << "=== Testing ArchetypeManager ===" << std::endl;
+        Core::ArchetypeManager& archetype_manager = Core::ECSManager::GetInstance().GetArchetypeManager();
+        TestArchetypeManager();
 
-		std::cout << "All tests completed successfully!" << std::endl;
-	} catch (const std::exception& e) {
-		std::cerr << "Test failed with exception: " << e.what() << std::endl;
-		return 1;
-	}
+        // Register the IntAttribute type
+        Core::ECSManager::GetInstance().RegisterAttribute<IntAttribute>();
 
-	return 0;
+        // Create an entity
+        Core::Entity entity2 = Core::ECSManager::GetInstance().CreateEntity();
+
+        // Add an IntAttribute to the entity
+        IntAttribute int_attr(42);
+        Core::ECSManager::GetInstance().AddAttribute(entity2, int_attr);
+
+        // Retrieve and verify the attribute
+        IntAttribute& retrieved_attr = Core::ECSManager::GetInstance().GetAttribute<IntAttribute>(entity2);
+        std::cout << "Retrieved attribute value: " << retrieved_attr.value << std::endl;
+
+        // Remove the attribute
+        Core::ECSManager::GetInstance().RemoveAttribute<IntAttribute>(entity2);
+
+        // Destroy the entity
+        Core::ECSManager::GetInstance().DestroyEntity(entity2);
+
+        std::cout << "All operations completed successfully." << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Test failed with exception: " << e.what() << std::endl;
+        return 1;
+    }
+
+    return 0;
 }

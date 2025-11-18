@@ -14,10 +14,7 @@ namespace Core {
 
 class ArchetypeManager {
 public:
-	static ArchetypeManager& GetInstance() {
-		static ArchetypeManager instance;
-		return instance;
-	}
+	explicit ArchetypeManager();
 
 	// Registers a new attribute type with its size.
 	// If attribute type already exists, it overrides its size.
@@ -27,11 +24,9 @@ public:
 	// necessary.
 	void AddEntity(EntityID entity_id, const ArchetypeSignature& signature);
 	// Removes an entity from the archetype matching the given signature.
-	void RemoveEntity(EntityID entity_id, const ArchetypeSignature& signature);
+	void RemoveEntity(EntityID entity_id);
 	// Updates an entity's archetype from old_signature to new_signature.
-	void UpdateEntityArchetype(EntityID entity_id,
-								const ArchetypeSignature& old_signature,
-								const ArchetypeSignature& new_signature);
+	void UpdateEntityArchetype(EntityID entity_id, const ArchetypeSignature& new_signature);
 
 
 	// Retrieves the attribute of the specified type for the given entity, if it exists.
@@ -46,8 +41,6 @@ public:
 	std::vector<std::reference_wrapper<Archetype>> QueryArchetypes(
 			const ArchetypeSignature& signature);
 private:
-	explicit inline ArchetypeManager();
-
 	// Retrieves an existing archetype matching the signature or creates a new one if it doesn't
 	// exist.
 	std::reference_wrapper<Archetype> GetOrCreateArchetype(const ArchetypeSignature& signature);

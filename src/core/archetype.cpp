@@ -9,7 +9,6 @@ Archetype::Archetype(ArchetypeSignature signature, const std::vector<size_t>& at
 					 const std::vector<AttributeType>& attribute_types) :
 		signature_(signature),
 		attribute_types_(attribute_types) {
-	
 	if (attribute_sizes.size() != attribute_types.size()) {
 		throw std::runtime_error("Attribute sizes and types size mismatch.");
 	}
@@ -21,9 +20,11 @@ Archetype::Archetype(ArchetypeSignature signature, const std::vector<size_t>& at
 		attribute_offsets_[i + 1] = attribute_offsets_[i] + attribute_sizes[i];
 	}
 
-	entity_stride_ = attribute_offsets_.back();
-	entities_per_chunk_ = kChunkSize / entity_stride_;
-
+	if (attribute_sizes.size() == 0) {
+		entities_per_chunk_ = std::numeric_limits<size_t>::max();
+	} else {
+		entity_stride_ = kChunkSize / entity_stride_;
+	}
 	if (entities_per_chunk_ == 0) {
 		throw std::runtime_error("Archetype entity stride exceeds chunk size.");
 	}
