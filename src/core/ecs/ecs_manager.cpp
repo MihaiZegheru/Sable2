@@ -2,8 +2,7 @@
 
 #include <stdexcept>
 
-
-namespace Core {
+namespace core::ecs {
 
 Entity ECSManager::CreateEntity() {
 	auto entity_result = entity_manager_.CreateEntity();
@@ -13,10 +12,10 @@ Entity ECSManager::CreateEntity() {
 	return entity_result.value();
 }
 
-void ECSManager::DestroyEntity(Entity entity) {
-	archetype_manager_.RemoveEntity(entity.id);
+void ECSManager::DestroyEntity(EntityID entity) {
+	archetype_manager_.RemoveEntity(entity);
 	entity_manager_.DestroyEntity(entity);
 
 	// TODO: Might want to remove from systems as well.
 }
-} // namespace Core
+} // namespace core::ecs

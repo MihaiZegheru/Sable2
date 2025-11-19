@@ -3,7 +3,7 @@ add_executable(sable
 )
 
 target_link_libraries(sable PRIVATE
-	core
+	ecs
 )
 
 set_target_properties(sable PROPERTIES

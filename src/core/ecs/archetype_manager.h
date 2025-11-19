@@ -10,7 +10,7 @@
 #include "archetype.h"
 #include "types.h"
 
-namespace Core {
+namespace core::ecs {
 
 class ArchetypeManager {
 public:
@@ -40,6 +40,10 @@ public:
 	// specified in the signature).
 	std::vector<std::reference_wrapper<Archetype>> QueryArchetypes(
 			const ArchetypeSignature& signature);
+
+	std::unordered_map<ArchetypeSignature, std::unique_ptr<Archetype>>& GetAllArchetypes() {
+		return signature_to_archetypes_;
+	}
 private:
 	// Retrieves an existing archetype matching the signature or creates a new one if it doesn't
 	// exist.
@@ -58,6 +62,6 @@ private:
 	// Maps archetype signatures to their corresponding archetype instances.
 	std::unordered_map<ArchetypeSignature, std::unique_ptr<Archetype>> signature_to_archetypes_;
 };
-} // namespace Core
+} // namespace core::ecs
 
 #endif // CORE_ARCHETYPE_MANAGER_H

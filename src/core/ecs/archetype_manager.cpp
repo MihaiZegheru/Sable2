@@ -7,9 +7,10 @@
 #include <vector>
 
 #include "archetype.h"
+#include "ecs_manager.h"
 #include "types.h"
 
-namespace Core {
+namespace core::ecs {
 
 // Create an empty archetype for entities with no attributes.
 ArchetypeManager::ArchetypeManager() {
@@ -19,6 +20,8 @@ ArchetypeManager::ArchetypeManager() {
 													empty_signature,
 													std::vector<size_t>{},
 													std::vector<AttributeType>{});
+
+	// TODO: Notify SystemManager about the new archetype
 }
 
 void ArchetypeManager::RegisterAttributeType(AttributeType attribute_type, size_t attribute_size) {
@@ -50,6 +53,11 @@ std::reference_wrapper<Archetype> ArchetypeManager::GetOrCreateArchetype(
 	auto archetype = std::make_unique<Archetype>(signature, attribute_sizes, attribute_types);
 	Archetype& archetype_ref = *archetype;
 	signature_to_archetypes_[signature] = std::move(archetype);
+
+	// Notify SystemManager about the new archetype
+	ECSManager& ecs_manager = ECSManager::GetInstance();
+	ecs_manager.GetSystemManager().OnArchetypeCreated(archetype_ref);
+
 	return archetype_ref;
 }
 
@@ -122,4 +130,4 @@ std::vector<std::reference_wrapper<Archetype>> ArchetypeManager::QueryArchetypes
 	}
 	return archetypes;
 }
-} // namespace Core
+} // namespace core::ecs

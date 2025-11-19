@@ -6,7 +6,7 @@
 
 #include "types.h"
 
-namespace Core {
+namespace core::ecs {
 
 EntityManager::EntityManager() {
 	for (EntityID id = 0; id < std::numeric_limits<EntityID>::max(); ++id) {
@@ -23,7 +23,7 @@ std::expected<Entity, std::string> EntityManager::CreateEntity() {
 	return entity;
 }
 
-void EntityManager::DestroyEntity(Entity entity) {
-	available_entities_.push(entity);
+void EntityManager::DestroyEntity(EntityID entity) {
+	available_entities_.push(Entity(entity));
 }
-} // namespace Core
+} // namespace core::ecs

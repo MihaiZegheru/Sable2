@@ -10,7 +10,7 @@
 #include "entity.h"
 #include "types.h"
 
-namespace Core {
+namespace core::ecs {
 
 // Size of each archetype data chunk in bytes (16 KB).
 static constexpr size_t kChunkSize = 16 << 10;
@@ -21,13 +21,13 @@ class Archetype {
 public:
 	explicit Archetype(ArchetypeSignature signature, const std::vector<size_t>& attribute_sizes,
 					   const std::vector<AttributeType>& attribute_types);
-	
+
 	// Adds an entity to the archetype and returns its index within the archetype.
 	// Function will allocate new chunk if necessary.
 	size_t AddEntity(EntityID entity_id);
 	// Removes an entity from the archetype.
 	void RemoveEntity(EntityID entity_id);
-	
+
 	// Retrieves a reference to the attribute of the specified type for the given entity.
 	IAttribute& GetAttribute(EntityID entity_id, AttributeType attribute_type);
 	// Sets the attribute of the specified type for the given entity.
@@ -41,10 +41,13 @@ public:
 		}
 	}
 
+	// Returns the signature of this archetype.
+	inline ArchetypeSignature GetSignature() const { return signature_; }
+
 private:
 	// Signature representing the set of attributes for this archetype.
 	ArchetypeSignature signature_;
-	
+
 	// Types of attributes stored in this archetype.
 	std::vector<AttributeType> attribute_types_;
 	// Map from attribute type to its index in the attribute_types_ vector. Used for fast internal
@@ -68,6 +71,6 @@ private:
 	// chunks.
 	std::vector<std::unique_ptr<uint8_t[]>> chunks_;
 };
-} // namespace Core
+} // namespace core::ecs
 
 #endif // CORE_ARCHETYPE_H

@@ -8,9 +8,11 @@
 #include "archetype_manager.h"
 #include "entity.h"
 #include "entity_manager.h"
+#include "system.h"
+#include "system_manager.h"
 #include "types.h"
 
-namespace Core {
+namespace core::ecs {
 
 // TODO: This should be the only interaction point for ECS operations. Therefore, the other managers
 // should have their methods private and be friends with this class.
@@ -25,7 +27,18 @@ public:
 	// Create a new entity and return it.
 	Entity CreateEntity();
 	// Destroy an entity.
-	void DestroyEntity(Entity entity);
+	void DestroyEntity(EntityID entity);
+
+	// Registers a system of type T with the given archetype signature.
+	// T must be derived from System.
+	template <typename T, typename = std::enable_if_t<std::is_base_of_v<System, T>>>
+	void RegisterSystem(ArchetypeSignature& signature) {
+		system_manager_.RegisterSystem<T>(signature);
+	}
+	// Updates all registered systems.
+	void UpdateSystems(float delta_time) {
+		system_manager_.UpdateSystems(delta_time);
+	}
 
 	// Registers an attribute type T with its size. This must be called before using the attribute
 	// in any entity.
@@ -40,7 +53,7 @@ public:
 	// Adds an attribute of type T to the specified entity.
 	// If attribute of that type already exists, it returns without changes.
 	template <typename T, typename = std::enable_if_t<std::is_base_of_v<IAttribute, T>>>
-	void AddAttribute(Entity entity, T attribute) {
+	void AddAttribute(EntityID entity, T& attribute) {
 		AttributeType type = GetAttributeType<T>();
 
 		ArchetypeSignature old_signature = entity_manager_.GetEntitySignature(entity);
@@ -51,18 +64,18 @@ public:
 		new_signature.set(type);
 
 		// Update archetype
-		archetype_manager_.UpdateEntityArchetype(entity.id, new_signature);
+		archetype_manager_.UpdateEntityArchetype(entity, new_signature);
 		entity_manager_.SetEntitySignature(entity, new_signature);
 
 		// Set attribute data
-		archetype_manager_.SetAttribute(entity.id, type, attribute);
+		archetype_manager_.SetAttribute(entity, type, attribute);
 
 		// TODO: Might want to update systems as well.
 	}
 	// Removes an attribute of type T from the specified entity.
 	// If attribute of that type does not exist, it returns without changes.
 	template <typename T, typename = std::enable_if_t<std::is_base_of_v<IAttribute, T>>>
-	void RemoveAttribute(Entity entity) {
+	void RemoveAttribute(EntityID entity) {
 		AttributeType type = GetAttributeType<T>();
 
 		ArchetypeSignature old_signature = entity_manager_.GetEntitySignature(entity);
@@ -81,9 +94,9 @@ public:
 	// Retrieves the attribute of type T for the specified entity.
 	// Throws an exception if the attribute does not exist.
 	template <typename T, typename = std::enable_if_t<std::is_base_of_v<IAttribute, T>>>
-	T& GetAttribute(Entity entity) {
+	T& GetAttribute(EntityID entity) {
 		AttributeType type = GetAttributeType<T>();
-		auto attribute_opt = archetype_manager_.GetAttribute(entity.id, type);
+		auto attribute_opt = archetype_manager_.GetAttribute(entity, type);
 		if (!attribute_opt.has_value()) {
 			throw std::runtime_error("Attribute not found for entity.");
 		}
@@ -91,7 +104,7 @@ public:
 	}
 	// Checks if the specified entity has an attribute of type T.
 	template <typename T, typename = std::enable_if_t<std::is_base_of_v<IAttribute, T>>>
-	bool HasAttribute(Entity entity) {
+	bool HasAttribute(EntityID entity) {
 		AttributeType type = GetAttributeType<T>();
 		ArchetypeSignature signature = entity_manager_.GetEntitySignature(entity);
 		return signature.test(type);
@@ -102,6 +115,9 @@ public:
 	}
 	inline EntityManager& GetEntityManager() {
 		return entity_manager_;
+	}
+	inline SystemManager& GetSystemManager() {
+		return system_manager_;
 	}
 
 private:
@@ -120,6 +136,7 @@ private:
 private:
 	ArchetypeManager archetype_manager_;
 	EntityManager entity_manager_;
+	SystemManager system_manager_;
 
 	// Maps C++ type indices to AttributeType identifiers.
 	std::unordered_map<std::type_index, AttributeType> component_types_;
@@ -127,5 +144,6 @@ private:
 	// Next available AttributeType identifier.
 	AttributeType next_attribute_type_ = 0;
 };
-} // namespace Core
+} // namespace core::ecs
+
 #endif // CORE_ECS_MANAGER_H

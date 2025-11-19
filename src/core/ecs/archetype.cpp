@@ -3,7 +3,7 @@
 #include <functional>
 #include <stdexcept>
 
-namespace Core {
+namespace core::ecs {
 
 Archetype::Archetype(ArchetypeSignature signature, const std::vector<size_t>& attribute_sizes,
 					 const std::vector<AttributeType>& attribute_types) :
@@ -19,11 +19,12 @@ Archetype::Archetype(ArchetypeSignature signature, const std::vector<size_t>& at
 		attribute_type_to_index_[attribute_types_[i]] = i;
 		attribute_offsets_[i + 1] = attribute_offsets_[i] + attribute_sizes[i];
 	}
+	entity_stride_ = attribute_offsets_.back();
 
 	if (attribute_sizes.size() == 0) {
 		entities_per_chunk_ = std::numeric_limits<size_t>::max();
 	} else {
-		entity_stride_ = kChunkSize / entity_stride_;
+		entities_per_chunk_ = kChunkSize / entity_stride_;
 	}
 	if (entities_per_chunk_ == 0) {
 		throw std::runtime_error("Archetype entity stride exceeds chunk size.");
@@ -69,11 +70,12 @@ IAttribute& Archetype::GetAttribute(EntityID entity_id,
 	size_t entity_index = it->second;
 	size_t chunk_index = entity_index / entities_per_chunk_;
 	size_t index_in_chunk = entity_index % entities_per_chunk_;
-	
+
 	auto attr_it = attribute_type_to_index_.find(attribute_type);
 	if (attr_it == attribute_type_to_index_.end()) {
 		throw std::runtime_error("Attribute type not found in archetype.");
 	}
+	
 	size_t attribute_offset = attribute_offsets_[attr_it->second];
 	uint8_t* chunk = chunks_[chunk_index].get();
 	uint8_t* attribute_ptr = chunk + (index_in_chunk * entity_stride_) + attribute_offset;
@@ -95,4 +97,4 @@ void Archetype::SetAttribute(EntityID entity_id, AttributeType attribute_type,
 							attribute_offsets_[attr_it->second];
 	std::memcpy(&attr, &attribute, attribute_size);
 }
-} // namespace Core
+} // namespace core::ecs

@@ -4,7 +4,7 @@
 #include <bitset>
 #include <cstdint>
 
-namespace Core {
+namespace core::ecs {
 
 // Define a type alias for Entity IDs.
 using EntityID = uint16_t;
@@ -22,6 +22,6 @@ class IAttribute {
 public:
 	virtual ~IAttribute() = default;
 };
-} // namespace Core
+} // namespace core::ecs
 
 #endif // CORE_TYPES_H
