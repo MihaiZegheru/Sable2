@@ -1,4 +1,7 @@
+add_subdirectory(attributes)
 add_subdirectory(assetloader)
 add_subdirectory(ecs)
 add_subdirectory(graphics)
-
+add_subdirectory(platform)
+add_subdirectory(render)
+add_subdirectory(systems)
