@@ -97,6 +97,9 @@ namespace {
 		loadedMaterialData.diffuseTexture = -1;
 		loadedMaterialData.diffuseTexture = LoadTexture(material.diffuse_texture);
 		loadedMaterialData.normalMap = LoadTexture(material.normal_map);
+
+		std::cout << material.diffuse_texture.width << " " << material.diffuse_texture.height << " " << material.diffuse_texture.channels << std::endl;
+
 		loadedMaterialData.baseColor = material.base_color;
 		loadedMaterialData.textureMask = material.texture_mask;
 		return loadedMaterialData;
@@ -188,6 +191,7 @@ void Renderer::InitShaders() {
 
 void Renderer::LoadModel(const graphics::Model& model)
 {
+	std::cout << "Loading model ID: " << model.id << std::endl;
     RenderModelData modelData;
     modelData.meshInstances = model.mesh_instances;
     for (const graphics::Mesh& mesh : model.meshes)

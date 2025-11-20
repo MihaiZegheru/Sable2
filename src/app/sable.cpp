@@ -7,6 +7,7 @@
 #include "core/systems/camera_system.h"
 #include "core/render/renderer.h"
 #include "core/platform/window.h"
+#include "core/assetloader/asset_loader_manager.h"
 
 using namespace core;
 
@@ -45,6 +46,27 @@ graphics::Mesh CreateSquare(float size, glm::vec3 origin) {
 int main() {
 	Window window(WINDOW_WIDTH, WINDOW_HEIGHT, "Game Engine");
 	render::Renderer& renderer = render::Renderer::GetInstance();
+	assetloader::AssetLoaderManager& asset_loader = assetloader::AssetLoaderManager::GetInstance();
+	
+    auto model_res = asset_loader.GetModelByPath("Tiles/Grass_tile_NS/grass_tile_ns.obj");
+	if (model_res.has_value()) {
+		graphics::Model& model = *(model_res.value());
+		std::cout << "Model loaded with ID: " << model.id << std::endl;
+		asset_loader.LoadModel(model);
+		renderer.LoadModel(model);
+	} else {
+		std::cout << "Model not found!" << std::endl;
+	}
+
+	auto cat_model_res = asset_loader.GetModelByPath("cat.fbx");
+	if (cat_model_res.has_value()) {
+		graphics::Model& cat_model = *(cat_model_res.value());
+		std::cout << "Cat Model loaded with ID: " << cat_model.id << std::endl;
+		asset_loader.LoadModel(cat_model);
+		renderer.LoadModel(cat_model);
+	} else {
+		std::cout << "Cat Model not found!" << std::endl;
+	}
 
 	core::ecs::ECSManager& ecs_manager = core::ecs::ECSManager::GetInstance();
 	ecs_manager.RegisterAttribute<attributes::Transform>();
@@ -63,19 +85,21 @@ int main() {
 
 	core::ecs::Entity entity2 = ecs_manager.CreateEntity();
 	attributes::Transform transform2;
-	transform2.position = glm::vec3(0.0f, 0.0f, -2.0f);
+	transform2.position = glm::vec3(0.0f, 0.0f, -51.0f);
+	transform2.scale = glm::vec3(100.0f, 100.0f, 100.0f);
 	ecs_manager.AddAttribute<attributes::Transform>(entity2.id, transform2);
 
 	glfwSetFramebufferSizeCallback(window.GetInstance(), OnWindowResize);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glClearColor(0.2, 0.2, 0.2, 1);
     // glfwSetInputMode(window.GetInstance(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	graphics::Mesh squareMesh = CreateSquare(1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
 	graphics::Material redMaterial;
 	redMaterial.base_color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 	
 	graphics::Model squareModel;
-	squareModel.id = 1; // Assign an ID
+	squareModel.id = 0; // Assign an ID
 	squareModel.materials.push_back(redMaterial);
 	squareModel.meshes.push_back(squareMesh);
 	squareModel.mesh_instances.push_back({0, 0, glm::mat4(1.0f)});
@@ -85,13 +109,23 @@ int main() {
 	squareDrawable.model_id = squareModel.id;
 	squareDrawable.model_matrix = transform2.GetModelMatrix();
 
+	core::ecs::Entity entity3 = ecs_manager.CreateEntity();
+	attributes::Transform transform3;
+	transform3.position = glm::vec3(2.0f, 0.0f, -50.0f);
+	transform3.scale = glm::vec3(10.0f, 10.0f, 10.0f);
+	ecs_manager.AddAttribute<attributes::Transform>(entity3.id, transform3);
+
+	render::Drawable tile_drawable;
+	tile_drawable.model_id = model_res.value()->id;
+	tile_drawable.model_matrix = transform3.GetModelMatrix();
+
 	float delta_time = 0.001f; // Simulate 1 second per tick
 	while (!glfwWindowShouldClose(window.GetInstance())) {
-		glDisable(GL_DEPTH_TEST);
+		// glDisable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		ecs_manager.UpdateSystems(delta_time);
-		renderer.Draw({squareDrawable}, entity);
+		renderer.Draw({squareDrawable, tile_drawable}, entity);
         glfwSwapBuffers(window.GetInstance());
         glfwPollEvents();
 	}

@@ -8,6 +8,7 @@ target_link_libraries(sable PRIVATE
 	systems
 	platform
 	attributes
+	assetloader
 )
 
 set_target_properties(sable PROPERTIES

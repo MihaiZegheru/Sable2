@@ -87,22 +87,9 @@ void main()
     vec3 diffuse = vec3(0);
     vec3 viewDirection = normalize(cameraPos - inFragPosition); 
 
-    for (int i = 0; i < lightsNum; i++)
-    {
-        lightPos = pointLights[i].position;
-        vec3 lightDirection = normalize(lightPos - inFragPosition); 
-
-        float dist = distance(lightPos, inFragPosition);
-        float attenuation = 1.f / (1.f + pointLights[i].linearAttenuation * dist + pointLights[i].quadraticAttenuation * dist * dist);
-
-        specular += ComputeSpecularReflection(viewDirection, lightDirection, normal) * attenuation;
-        diffuse += ComputeDiffuseReflection(lightDirection, normal, pointLights[i].color, pointLights[i].intenisty) * attenuation;
-        // diffuse += ComputeDiffuseReflection(lightDirection, normal, pointLights[i].color, 1);
-        // diffuse += ComputeDiffuseReflection(lightDirection, normal, vec3(0.7, 0, 0), 1);
-    }
     diffuse *= diffuseColor;
 
-    fragColor = vec4(ambient + specular + diffuse, 1); 
+    fragColor = vec4(ambient, 1); 
 	// fragColor = vec4(lightPos, 1);
 	// fragColor = vec4(pointLights[0].color, 1);
 	// fragColor = vec4(1.f * lightsNum, 1);

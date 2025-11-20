@@ -20,6 +20,8 @@
 #include "core/graphics/model.h"
 #include "core/graphics/texture.h"
 
+#include <iostream>
+
 namespace core::assetloader {
 
 using namespace core;
@@ -57,10 +59,11 @@ namespace {
 		texture.width = width;
 		texture.height = height;
 		texture.channels = channels;
+		std::cout << "Loaded texture: " << path << " (" << width << "x" << height << ", " << channels << " channels)" << std::endl;
 		return texture;
 	}
 
-	void GetMaterialFromAssimp(aiMaterial* aimp_material, graphics::Material& material) { 
+	void GetMaterialFromAssimp(aiMaterial* aimp_material, graphics::Material& material, std::string& path) { 
 		aiColor4D color;
 		aiGetMaterialColor(aimp_material, AI_MATKEY_COLOR_DIFFUSE, &color);
 		material.base_color = glm::vec4(color.r, color.g, color.b, color.a);
@@ -68,8 +71,8 @@ namespace {
 		int texture_mask = 0;
 		aiString aimp_file_path;
 		aimp_material->GetTexture(aiTextureType_DIFFUSE, 0, &aimp_file_path);
-		std::string file_path = std::string(ABSOLUTE_RESOURCE_DIR) + "/"
-											+ std::string(aimp_file_path.C_Str());
+		std::string file_path = std::string(path + "/"
+											+ std::string(aimp_file_path.C_Str()));
 		graphics::Texture diffuse_texture = LoadTexture(file_path);
 		material.diffuse_texture = diffuse_texture;
 		if (diffuse_texture.data) {
@@ -77,8 +80,8 @@ namespace {
 		}
 
 		aimp_material->GetTexture(aiTextureType_NORMALS, 0, &aimp_file_path);
-		file_path = std::string(ABSOLUTE_RESOURCE_DIR) + "/"
-								+ std::string(aimp_file_path.C_Str());
+		file_path = std::string(path + "/"
+								+ std::string(aimp_file_path.C_Str()));
 		graphics::Texture normal_map = LoadTexture(file_path);
 		material.normal_map = normal_map;
 		if (normal_map.data) {
@@ -109,7 +112,7 @@ namespace {
 		}
 	}
 
-	void GetModelFromAssimp(const aiScene* const& aimp_scene, graphics::Model& model) {
+	void GetModelFromAssimp(const aiScene* const& aimp_scene, graphics::Model& model, std::string& path) {
 		model.meshes.resize(aimp_scene->mNumMeshes);
 		for (size_t i = 0; i < aimp_scene->mNumMeshes; ++i) {
 			GetMeshFromAssimp(aimp_scene->mMeshes[i], model.meshes[i]);
@@ -117,7 +120,7 @@ namespace {
 
 		model.materials.resize(aimp_scene->mNumMaterials);
 		for (size_t i = 0; i < aimp_scene->mNumMaterials; ++i) {
-			GetMaterialFromAssimp(aimp_scene->mMaterials[i], model.materials[i]);
+			GetMaterialFromAssimp(aimp_scene->mMaterials[i], model.materials[i], path);
 		}
 
 		const aiNode* const& aimpNode = aimp_scene->mRootNode;
@@ -129,6 +132,7 @@ namespace {
 		return extension == ".obj" || extension == ".fbx";
 	}
 } // namespace
+
 
 AssetLoaderManager::AssetLoaderManager() {
 	ParseResourcesFolder(std::string_view(ABSOLUTE_RESOURCE_DIR));
@@ -156,6 +160,7 @@ void AssetLoaderManager::ParseResourcesFolder(std::string_view folder_path) {
             id_to_model_[model->id] = model;
             id_to_path_[model->id] = file_path_str;
             path_to_model_[file_path_str] = model;
+			id_to_dirrectory_[model->id] = filePath.parent_path().string();
         } else {
 			// TODO: Handle other asset types
 		}
@@ -173,11 +178,12 @@ void AssetLoaderManager::LoadModel(graphics::Model& model) {
         aiProcess_Triangulate |
         aiProcess_JoinIdenticalVertices |
         aiProcess_SortByPType));
-    GetModelFromAssimp(aimp_scene, model);
+    GetModelFromAssimp(aimp_scene, model, id_to_dirrectory_[model.id]);
 }
 
 std::optional<std::shared_ptr<graphics::Model>> AssetLoaderManager::GetModelByPath(const std::string& path) {
-	auto it = path_to_model_.find(path);
+	const std::string absolute_file_path = std::string(ABSOLUTE_RESOURCE_DIR) + "/" + path;
+	auto it = path_to_model_.find(absolute_file_path);
 	if (it != path_to_model_.end()) {
 		return it->second;
 	}

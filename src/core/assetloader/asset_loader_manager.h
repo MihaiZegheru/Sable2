@@ -18,14 +18,18 @@ using ModelID = size_t;
 
 class AssetLoaderManager {
 public:
-	explicit AssetLoaderManager();
-
+	static AssetLoaderManager& GetInstance() {
+		static AssetLoaderManager instance;
+		return instance;
+	}
+	
 	// Loads a model.
 	void LoadModel(graphics::Model& model);
 	// Retrieves a model by its path. Returns nullopt if not found.
 	std::optional<std::shared_ptr<graphics::Model>> GetModelByPath(const std::string& path);
 
 private:
+	explicit AssetLoaderManager();
 	// Recursively parses the resources folder to index available assets.
 	void ParseResourcesFolder(std::string_view folder_path);
 
@@ -38,6 +42,7 @@ private:
 	std::unordered_map<ModelID, std::string> id_to_path_;
 	std::unordered_map<ModelID, std::shared_ptr<graphics::Model>> id_to_model_;
 	std::unordered_map<std::string, std::shared_ptr<graphics::Model>> path_to_model_;
+	std::unordered_map<ModelID, std::string> id_to_dirrectory_;
 
 	ModelID next_id_ = 0;
 };
