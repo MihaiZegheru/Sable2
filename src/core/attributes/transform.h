@@ -18,6 +18,8 @@ struct Transform : ecs::IAttribute {
 	      rotation(1.0f, 0.0f, 0.0f, 0.0f),
 	      scale(1.0f, 1.0f, 1.0f) {}
 
+	// TODO: Should move to some other attribute and add dirty flagging
+	
 	glm::mat4 GetModelMatrix() const {
 		glm::mat4 translation = glm::translate(glm::mat4(1.0f), position);
 		glm::mat4 rotation_mat = glm::mat4_cast(rotation);

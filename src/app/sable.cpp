@@ -5,9 +5,11 @@
 #include "core/attributes/transform.h"
 #include "core/attributes/camera.h"
 #include "core/systems/camera_system.h"
+#include "core/systems/render_system.h"
 #include "core/render/renderer.h"
 #include "core/platform/window.h"
 #include "core/assetloader/asset_loader_manager.h"
+#include "core/attributes/static_mesh.h"
 
 using namespace core;
 
@@ -43,6 +45,23 @@ graphics::Mesh CreateSquare(float size, glm::vec3 origin) {
 	return squareMesh;
 }
 
+void RegisterAttributesAndSystems() {
+	core::ecs::ECSManager& ecs_manager = core::ecs::ECSManager::GetInstance();
+	ecs_manager.RegisterAttribute<attributes::Transform>();
+	ecs_manager.RegisterAttribute<attributes::Camera>();
+	ecs_manager.RegisterAttribute<attributes::StaticMesh>();
+
+	core::ecs::ArchetypeSignature camera_signature;
+	camera_signature.set(0); // Transform
+	camera_signature.set(1); // Camera
+	ecs_manager.RegisterSystem<systems::CameraSystem>(camera_signature);
+
+	core::ecs::ArchetypeSignature render_signature;
+	render_signature.set(0); // Transform
+	render_signature.set(2); // StaticMesh
+	ecs_manager.RegisterSystem<systems::RenderSystem>(render_signature);
+}
+
 int main() {
 	Window window(WINDOW_WIDTH, WINDOW_HEIGHT, "Game Engine");
 	render::Renderer& renderer = render::Renderer::GetInstance();
@@ -68,26 +87,18 @@ int main() {
 		std::cout << "Cat Model not found!" << std::endl;
 	}
 
-	core::ecs::ECSManager& ecs_manager = core::ecs::ECSManager::GetInstance();
-	ecs_manager.RegisterAttribute<attributes::Transform>();
-	ecs_manager.RegisterAttribute<attributes::Camera>();
 
-	core::ecs::ArchetypeSignature camera_signature;
-	camera_signature.set(0); // Transform
-	camera_signature.set(1); // Camera
-	ecs_manager.RegisterSystem<systems::CameraSystem>(camera_signature);
+	RegisterAttributesAndSystems();
+	core::ecs::ECSManager& ecs_manager = core::ecs::ECSManager::GetInstance();
 
 	core::ecs::Entity entity = ecs_manager.CreateEntity();
 	attributes::Transform transform;
+	// transform.position = glm::vec3(0.0f, 0.0f, -50.0f);
 	attributes::Camera camera;
+	std::cout << "Created entity with ID: " << entity.id << std::endl;
 	ecs_manager.AddAttribute<attributes::Transform>(entity.id, transform);
+	std::cout << "Created entity with ID: " << entity.id << std::endl;
 	ecs_manager.AddAttribute<attributes::Camera>(entity.id, camera);
-
-	core::ecs::Entity entity2 = ecs_manager.CreateEntity();
-	attributes::Transform transform2;
-	transform2.position = glm::vec3(0.0f, 0.0f, -51.0f);
-	transform2.scale = glm::vec3(100.0f, 100.0f, 100.0f);
-	ecs_manager.AddAttribute<attributes::Transform>(entity2.id, transform2);
 
 	glfwSetFramebufferSizeCallback(window.GetInstance(), OnWindowResize);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -105,19 +116,33 @@ int main() {
 	squareModel.mesh_instances.push_back({0, 0, glm::mat4(1.0f)});
 	renderer.LoadModel(squareModel);
 
-	render::Drawable squareDrawable;
-	squareDrawable.model_id = squareModel.id;
-	squareDrawable.model_matrix = transform2.GetModelMatrix();
+	core::ecs::Entity entity2 = ecs_manager.CreateEntity();
+	attributes::Transform transform2;
+	transform2.position = glm::vec3(0.0f, 0.0f, -51.0f);
+	transform2.scale = glm::vec3(100.0f, 100.0f, 100.0f);
+	ecs_manager.AddAttribute<attributes::Transform>(entity2.id, transform2);
+	auto square_trans = ecs_manager.GetAttribute<attributes::Transform>(entity2.id);
+	std::cout << "Created entity with ID: " << entity2.id << " and assigned square model ID: " << squareModel.id << std::endl;
+	std::cout << "Transform position: " << square_trans.position.x << ", " << square_trans.position.y << ", " << square_trans.position.z << std::endl;
+	
+	attributes::StaticMesh static_mesh2;
+	static_mesh2.model_id = squareModel.id;
+	ecs_manager.AddAttribute<attributes::StaticMesh>(entity2.id, static_mesh2);
+	
+	// auto square_trans = ecs_manager.GetAttribute<attributes::Transform>(entity2.id);
+	// std::cout << "Created entity with ID: " << entity2.id << " and assigned square model ID: " << squareModel.id << std::endl;
+	// std::cout << "Transform position: " << square_trans.position.x << ", " << square_trans.position.y << ", " << square_trans.position.z << std::endl;
+	
+	
+	// core::ecs::Entity entity3 = ecs_manager.CreateEntity();
+	// attributes::Transform transform3;
+	// transform3.position = glm::vec3(2.0f, 0.0f, -50.0f);
+	// transform3.scale = glm::vec3(10.0f, 10.0f, 10.0f);
+	// ecs_manager.AddAttribute<attributes::Transform>(entity3.id, transform3);
 
-	core::ecs::Entity entity3 = ecs_manager.CreateEntity();
-	attributes::Transform transform3;
-	transform3.position = glm::vec3(2.0f, 0.0f, -50.0f);
-	transform3.scale = glm::vec3(10.0f, 10.0f, 10.0f);
-	ecs_manager.AddAttribute<attributes::Transform>(entity3.id, transform3);
-
-	render::Drawable tile_drawable;
-	tile_drawable.model_id = model_res.value()->id;
-	tile_drawable.model_matrix = transform3.GetModelMatrix();
+	// attributes::StaticMesh static_mesh3;
+	// static_mesh3.model_id = model_res.value()->id;
+	// ecs_manager.AddAttribute<attributes::StaticMesh>(entity3.id, static_mesh3);
 
 	float delta_time = 0.001f; // Simulate 1 second per tick
 	while (!glfwWindowShouldClose(window.GetInstance())) {
@@ -125,7 +150,7 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		ecs_manager.UpdateSystems(delta_time);
-		renderer.Draw({squareDrawable, tile_drawable}, entity);
+
         glfwSwapBuffers(window.GetInstance());
         glfwPollEvents();
 	}

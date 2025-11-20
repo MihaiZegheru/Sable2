@@ -208,11 +208,11 @@ void Renderer::LoadModel(const graphics::Model& model)
     id_to_render_data_[model.id] = modelData;
 }
 
-void Renderer::Draw(const std::vector <Drawable>& drawables, ecs::Entity& active_camera) {
-	attributes::Camera& active_camera_attr = core::ecs::ECSManager::GetInstance().GetAttribute<attributes::Camera>(active_camera.id);
+void Renderer::Draw(const std::vector <Drawable>& drawables, ecs::EntityID active_camera_id) {
+	attributes::Camera& active_camera_attr = core::ecs::ECSManager::GetInstance().GetAttribute<attributes::Camera>(active_camera_id);
     glUniformMatrix4fv(1, 1, GL_FALSE, &active_camera_attr.view_matrix[0][0]);
     glUniformMatrix4fv(2, 1, GL_FALSE, &active_camera_attr.projection_matrix[0][0]);
-	attributes::Transform& camera_transform = core::ecs::ECSManager::GetInstance().GetAttribute<attributes::Transform>(active_camera.id);
+	attributes::Transform& camera_transform = core::ecs::ECSManager::GetInstance().GetAttribute<attributes::Transform>(active_camera_id);
     glUniform3fv(4, 1, glm::value_ptr(camera_transform.position));
 
     for (const Drawable& drawable : drawables)

@@ -10,6 +10,9 @@
 #include "ecs_manager.h"
 #include "types.h"
 
+#include "core/attributes/transform.h"
+#include <iostream>
+
 namespace core::ecs {
 
 // Create an empty archetype for entities with no attributes.
@@ -80,13 +83,33 @@ void ArchetypeManager::RemoveEntity(EntityID entity_id) {
 }
 
 void ArchetypeManager::UpdateEntityArchetype(EntityID entity_id,
-		const ArchetypeSignature& new_signature) {
-	auto it = entity_to_archetype_.find(entity_id);
-	if (it != entity_to_archetype_.end()) {
-		it->second.get().RemoveEntity(entity_id);
-		entity_to_archetype_.erase(entity_id);
+											 const ArchetypeSignature& old_signature,
+											 const ArchetypeSignature& new_signature) {
+	
+	auto& old_archetype = GetOrCreateArchetype(old_signature).get();
+	auto& new_archetype = GetOrCreateArchetype(new_signature).get();
+
+	new_archetype.AddEntity(entity_id);
+
+	for (AttributeType type = 0; type < kMaxAttributes; ++type) {
+		if (old_signature.test(type) && new_signature.test(type)) {
+			auto attribute = old_archetype.GetAttribute(entity_id, type);
+			if (type == 0) {
+				auto ptr = reinterpret_cast<attributes::Transform*>(&attribute);
+				std::cout << "Transferring Transform Attribute: Position("
+						  << ptr->position.x << ", "
+						  << ptr->position.y << ", "
+						  << ptr->position.z << ")\n";
+			}
+			new_archetype.SetAttribute(entity_id, type, attribute);
+		}
 	}
-	AddEntity(entity_id, new_signature);
+
+	// Remove from old archetype
+	old_archetype.RemoveEntity(entity_id);
+	// Update mapping
+	entity_to_archetype_.erase(entity_id);
+	entity_to_archetype_.insert({entity_id, new_archetype});
 }
 
 std::optional<std::reference_wrapper<Archetype>> ArchetypeManager::GetEntityArchetype(

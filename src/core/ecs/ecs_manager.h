@@ -64,7 +64,7 @@ public:
 		new_signature.set(type);
 
 		// Update archetype
-		archetype_manager_.UpdateEntityArchetype(entity, new_signature);
+		archetype_manager_.UpdateEntityArchetype(entity, old_signature, new_signature);
 		entity_manager_.SetEntitySignature(entity, new_signature);
 
 		// Set attribute data

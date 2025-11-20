@@ -3,6 +3,9 @@
 #include <functional>
 #include <stdexcept>
 
+#include "core/attributes/transform.h"
+#include <iostream>
+
 namespace core::ecs {
 
 Archetype::Archetype(ArchetypeSignature signature, const std::vector<size_t>& attribute_sizes,
@@ -66,7 +69,6 @@ IAttribute& Archetype::GetAttribute(EntityID entity_id,
 	if (it == entity_to_index_.end()) {
 		throw std::runtime_error("Entity not found in archetype.");
 	}
-
 	size_t entity_index = it->second;
 	size_t chunk_index = entity_index / entities_per_chunk_;
 	size_t index_in_chunk = entity_index % entities_per_chunk_;
@@ -75,7 +77,6 @@ IAttribute& Archetype::GetAttribute(EntityID entity_id,
 	if (attr_it == attribute_type_to_index_.end()) {
 		throw std::runtime_error("Attribute type not found in archetype.");
 	}
-	
 	size_t attribute_offset = attribute_offsets_[attr_it->second];
 	uint8_t* chunk = chunks_[chunk_index].get();
 	uint8_t* attribute_ptr = chunk + (index_in_chunk * entity_stride_) + attribute_offset;
@@ -87,7 +88,6 @@ IAttribute& Archetype::GetAttribute(EntityID entity_id,
 void Archetype::SetAttribute(EntityID entity_id, AttributeType attribute_type,
 							 IAttribute& attribute) {
 	IAttribute& attr = GetAttribute(entity_id, attribute_type);
-
 	auto attr_it = attribute_type_to_index_.find(attribute_type);
 	if (attr_it == attribute_type_to_index_.end()) {
 		throw std::runtime_error("Attribute type not found in archetype.");
@@ -96,5 +96,17 @@ void Archetype::SetAttribute(EntityID entity_id, AttributeType attribute_type,
 	size_t attribute_size = attribute_offsets_[attr_it->second + 1] -
 							attribute_offsets_[attr_it->second];
 	std::memcpy(&attr, &attribute, attribute_size);
+	if (attribute_size == 48) {
+		auto ptr = reinterpret_cast<attributes::Transform&>(attribute);
+		std::cout << "From Transform Attribute: Position("
+				  << ptr.position.x << ", "
+				  << ptr.position.y << ", "
+				  << ptr.position.z << ")\n";
+		auto ptr1 = reinterpret_cast<attributes::Transform&>(attr);
+		std::cout << "Set Transform Attribute: Position("
+				  << ptr1.position.x << ", "
+				  << ptr1.position.y << ", "
+				  << ptr1.position.z << ")\n";
+	}
 }
 } // namespace core::ecs

@@ -9,4 +9,5 @@ add_library(ecs STATIC
 target_include_directories(ecs PUBLIC ${CMAKE_SOURCE_DIR}/src)
 
 target_link_libraries(ecs PUBLIC
+attributes
 )

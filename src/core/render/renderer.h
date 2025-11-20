@@ -22,7 +22,7 @@ public:
 	void UnloadModel(size_t model_id) { 
 		// TODO 
 	};
-	void Draw(const std::vector<Drawable>& drawables, ecs::Entity& active_camera);
+	void Draw(const std::vector<Drawable>& drawables, ecs::EntityID active_camera_id);
 	
 private:
 	void InitShaders();

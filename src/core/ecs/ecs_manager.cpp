@@ -9,6 +9,10 @@ Entity ECSManager::CreateEntity() {
 	if (!entity_result.has_value()) {
 		throw std::runtime_error("Failed to create entity: " + entity_result.error());
 	}
+
+	// Add new entity to default archetype.
+	archetype_manager_.AddEntity(entity_result->id, ArchetypeSignature{});
+
 	return entity_result.value();
 }
 

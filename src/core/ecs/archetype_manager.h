@@ -26,7 +26,9 @@ public:
 	// Removes an entity from the archetype matching the given signature.
 	void RemoveEntity(EntityID entity_id);
 	// Updates an entity's archetype from old_signature to new_signature.
-	void UpdateEntityArchetype(EntityID entity_id, const ArchetypeSignature& new_signature);
+	void UpdateEntityArchetype(EntityID entity_id,
+							   const ArchetypeSignature& old_signature,
+							   const ArchetypeSignature& new_signature);
 
 
 	// Retrieves the attribute of the specified type for the given entity, if it exists.

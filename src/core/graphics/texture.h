@@ -1,9 +1,9 @@
 #ifndef CORE_GRAPHICS_TEXTURE_H
 #define CORE_GRAPHICS_TEXTURE_H
 
-#include <glad/glad.h>
-
 #include <cstdint>
+
+#include <glad/glad.h>
 
 namespace core::graphics {
 
