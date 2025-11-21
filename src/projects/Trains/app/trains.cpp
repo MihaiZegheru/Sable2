@@ -11,6 +11,8 @@
 #include "core/assetloader/asset_loader_manager.h"
 #include "core/attributes/static_mesh.h"
 
+#include "projects/Trains/managers/map_manager.h"
+
 using namespace core;
 
 int WINDOW_WIDTH = 2000;
@@ -82,7 +84,7 @@ int main() {
 
 	core::ecs::Entity entity = ecs_manager.CreateEntity();
 	attributes::Transform transform;
-	transform.position = glm::vec3(0.0f, 200.0f, 0.0f);
+	transform.position = glm::vec3(0.0f, 700.0f, 0.0f);
 	transform.rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
 	ecs_manager.AddAttribute<attributes::Transform>(entity.id, transform);
 	attributes::Camera camera;
@@ -91,47 +93,9 @@ int main() {
 	glfwSetFramebufferSizeCallback(window.GetInstance(), OnWindowResize);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glClearColor(0.2, 0.2, 0.2, 1);
-    // glfwSetInputMode(window.GetInstance(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-	graphics::Mesh squareMesh = CreateSquare(1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
-	graphics::Material redMaterial;
-	redMaterial.base_color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	
-	graphics::Model squareModel;
-	squareModel.id = 0; // Assign an ID
-	squareModel.materials.push_back(redMaterial);
-	squareModel.meshes.push_back(squareMesh);
-	squareModel.mesh_instances.push_back({0, 0, glm::mat4(1.0f)});
-	renderer.LoadModel(squareModel);
-
-	
-	core::ecs::Entity entity3 = ecs_manager.CreateEntity();
-	attributes::Transform transform3;
-	transform3.position = glm::vec3(0.0f, 0.0f, 0.0f);
-	transform3.scale = glm::vec3(10.0f, 10.0f, 10.0f);
-	ecs_manager.AddAttribute<attributes::Transform>(entity3.id, transform3);
-	attributes::StaticMesh static_mesh3;
-	static_mesh3.model_id = model_res.value()->id;
-	ecs_manager.AddAttribute<attributes::StaticMesh>(entity3.id, static_mesh3);
-
-	core::ecs::Entity entity4 = ecs_manager.CreateEntity();
-	attributes::Transform transform4;
-	transform4.position = glm::vec3(0.0f, 0.0f, 28.0f);
-	transform4.scale = glm::vec3(10.0f, 10.0f, 10.0f);
-	ecs_manager.AddAttribute<attributes::Transform>(entity4.id, transform4);
-	attributes::StaticMesh static_mesh4;
-	static_mesh4.model_id = model_res.value()->id;
-	ecs_manager.AddAttribute<attributes::StaticMesh>(entity4.id, static_mesh4);
-
-
-	core::ecs::Entity entity5 = ecs_manager.CreateEntity();
-	attributes::Transform transform5;
-	transform5.position = glm::vec3(25.0f, 0.0f, 14.0f);
-	transform5.scale = glm::vec3(10.0f, 10.0f, 10.0f);
-	ecs_manager.AddAttribute<attributes::Transform>(entity5.id, transform5);
-	attributes::StaticMesh static_mesh5;
-	static_mesh5.model_id = model_res.value()->id;
-	ecs_manager.AddAttribute<attributes::StaticMesh>(entity5.id, static_mesh5);
+ 
+	trains::managers::MapManager map_manager;
+	map_manager.GenerateMap(10);
 
 	float delta_time = 0.001f; // Simulate 1 second per tick
 	while (!glfwWindowShouldClose(window.GetInstance())) {

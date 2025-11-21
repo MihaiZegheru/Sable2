@@ -31,7 +31,7 @@ out vec4 fragColor;
 
 float specularExponent = 8;
 vec3 specularReflectionColor = vec3(0.2f); 
-float ambientLightIntensity = 0.2f;
+float ambientLightIntensity = 0.7f;
 
 vec3 GetNormal()
 {
@@ -87,7 +87,6 @@ void main()
     vec3 diffuse = vec3(0);
     vec3 viewDirection = normalize(cameraPos - inFragPosition); 
 
-    diffuse *= diffuseColor;
 
     fragColor = vec4(ambient, 1); 
 	// fragColor = vec4(lightPos, 1);
@@ -95,7 +94,7 @@ void main()
 	// fragColor = vec4(1.f * lightsNum, 1);
     // fragColor = vec4(pointLights[0].color, 1); 
 
-        // ambient
+    // ambient
     // float ambientStrength = 0.1;
     // vec3 ambient = ambientStrength * ambientLightColor;s
   	

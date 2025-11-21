@@ -1,6 +1,7 @@
 #include "camera_system.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 #include "core/attributes/camera.h"
 #include "core/attributes/transform.h"
@@ -19,7 +20,7 @@ void CameraSystem::TickArchetype(ecs::Archetype& archetype, float delta_time) {
 
 		// Update view matrix based on transform
 		glm::mat4 translation = glm::translate(glm::mat4(1.0f), -transform.position);
-		glm::mat4 rotation = glm::mat4_cast(glm::conjugate(transform.rotation));
+		glm::mat4 rotation = glm::yawPitchRoll(glm::radians(-transform.rotation.y), glm::radians(-transform.rotation.x), glm::radians(-transform.rotation.z));
 		camera.view_matrix = rotation * translation;
 
 		// Update projection matrix based on FOV and aspect ratio (assuming 16:9 here)

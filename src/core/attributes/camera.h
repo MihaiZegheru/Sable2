@@ -15,7 +15,7 @@ struct Camera : ecs::IAttribute {
 	Camera()
 	    : fov(45.0f),
 	      near_plane(0.1f),
-	      far_plane(100.0f) {}
+	      far_plane(1000.0f) {}
 
 	glm::mat4 view_matrix;
 	glm::mat4 projection_matrix;
