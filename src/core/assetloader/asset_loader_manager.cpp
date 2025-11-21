@@ -20,8 +20,6 @@
 #include "core/graphics/model.h"
 #include "core/graphics/texture.h"
 
-#include <iostream>
-
 namespace core::assetloader {
 
 using namespace core;
@@ -59,7 +57,6 @@ namespace {
 		texture.width = width;
 		texture.height = height;
 		texture.channels = channels;
-		std::cout << "Loaded texture: " << path << " (" << width << "x" << height << ", " << channels << " channels)" << std::endl;
 		return texture;
 	}
 

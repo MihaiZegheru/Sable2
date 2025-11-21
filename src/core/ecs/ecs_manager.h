@@ -86,7 +86,7 @@ public:
 		new_signature.reset(type);
 
 		// Update archetype
-		archetype_manager_.UpdateEntityArchetype(entity.id, new_signature);
+		archetype_manager_.UpdateEntityArchetype(entity.id, old_signature, new_signature);
 		entity_manager_.SetEntitySignature(entity, new_signature);
 
 		// TODO: Might want to update systems as well.

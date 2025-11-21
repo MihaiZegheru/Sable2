@@ -10,9 +10,6 @@
 #include "ecs_manager.h"
 #include "types.h"
 
-#include "core/attributes/transform.h"
-#include <iostream>
-
 namespace core::ecs {
 
 // Create an empty archetype for entities with no attributes.
@@ -35,7 +32,6 @@ std::reference_wrapper<Archetype> ArchetypeManager::GetOrCreateArchetype(
 		const ArchetypeSignature& signature) {
 	auto it = signature_to_archetypes_.find(signature);
 	if (it != signature_to_archetypes_.end()) {
-		std::cout << "Archetype found for signature:" << signature << std::endl;
 		return *(it->second);
 	}
 
@@ -94,17 +90,7 @@ void ArchetypeManager::UpdateEntityArchetype(EntityID entity_id,
 
 	for (AttributeType type = 0; type < kMaxAttributes; ++type) {
 		if (old_signature.test(type) && new_signature.test(type)) {
-			std::cout << "AAAAAAAAAAAAAA" << std::endl;
-			auto attribute = old_archetype.GetAttribute(entity_id, type);
-			if (type == 0) {
-				auto ptr = reinterpret_cast<attributes::Transform*>(&attribute);
-
-				// TODO: NOT RUNNING 
-				// std::cout << "Transferring Transform Attribute: Position("
-				// 		  << ptr->position.x << ", "
-				// 		  << ptr->position.y << ", "
-				// 		  << ptr->position.z << ")\n";
-			}
+			auto& attribute = old_archetype.GetAttribute(entity_id, type);
 			new_archetype.SetAttribute(entity_id, type, attribute);
 		}
 	}
