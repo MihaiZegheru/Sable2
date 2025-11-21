@@ -93,11 +93,15 @@ int main() {
 
 	core::ecs::Entity entity = ecs_manager.CreateEntity();
 	attributes::Transform transform;
-	// transform.position = glm::vec3(0.0f, 0.0f, -50.0f);
+	transform.position = glm::vec3(0.0f, 0.0f, -50.0f);
 	attributes::Camera camera;
 	std::cout << "Created entity with ID: " << entity.id << std::endl;
 	ecs_manager.AddAttribute<attributes::Transform>(entity.id, transform);
 	std::cout << "Created entity with ID: " << entity.id << std::endl;
+	attributes::Transform& trans = ecs_manager.GetAttribute<attributes::Transform>(entity.id);
+	std::cout << "Transform addr: " << &trans << std::endl;
+	std::cout << "Transform position: " << trans.position.x << ", " << trans.position.y << ", " << trans.position.z << std::endl;
+
 	ecs_manager.AddAttribute<attributes::Camera>(entity.id, camera);
 
 	glfwSetFramebufferSizeCallback(window.GetInstance(), OnWindowResize);
@@ -143,7 +147,7 @@ int main() {
 	// attributes::StaticMesh static_mesh3;
 	// static_mesh3.model_id = model_res.value()->id;
 	// ecs_manager.AddAttribute<attributes::StaticMesh>(entity3.id, static_mesh3);
-
+	return 0;
 	float delta_time = 0.001f; // Simulate 1 second per tick
 	while (!glfwWindowShouldClose(window.GetInstance())) {
 		// glDisable(GL_DEPTH_TEST);

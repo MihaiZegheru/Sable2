@@ -65,6 +65,8 @@ void Archetype::RemoveEntity(EntityID entity_id) {
 
 IAttribute& Archetype::GetAttribute(EntityID entity_id,
 		AttributeType attribute_type) {
+	std::cout << "Getting attribute of type " << static_cast<int>(attribute_type)
+			  << " for entity ID " << entity_id << " with signature " << signature_ << std::endl;
 	auto it = entity_to_index_.find(entity_id);
 	if (it == entity_to_index_.end()) {
 		throw std::runtime_error("Entity not found in archetype.");
@@ -82,6 +84,14 @@ IAttribute& Archetype::GetAttribute(EntityID entity_id,
 	uint8_t* attribute_ptr = chunk + (index_in_chunk * entity_stride_) + attribute_offset;
 
 	IAttribute* attribute = reinterpret_cast<IAttribute*>(attribute_ptr);
+	std::cout << "Attribute addr: " << attribute << std::endl;
+	if (attribute_type == 0) {
+		auto ptr = reinterpret_cast<attributes::Transform*>(attribute);
+		std::cout << "From GetAttribute: Position("
+				  << ptr->position.x << ", "
+				  << ptr->position.y << ", "
+				  << ptr->position.z << ")\n";
+	}
 	return *attribute;
 }
 
@@ -97,12 +107,14 @@ void Archetype::SetAttribute(EntityID entity_id, AttributeType attribute_type,
 							attribute_offsets_[attr_it->second];
 	std::memcpy(&attr, &attribute, attribute_size);
 	if (attribute_size == 48) {
-		auto ptr = reinterpret_cast<attributes::Transform&>(attribute);
+		attributes::Transform& ptr = reinterpret_cast<attributes::Transform&>(attribute);
+		std::cout << "Transform in A addr: " << &ptr << std::endl;
 		std::cout << "From Transform Attribute: Position("
 				  << ptr.position.x << ", "
 				  << ptr.position.y << ", "
 				  << ptr.position.z << ")\n";
-		auto ptr1 = reinterpret_cast<attributes::Transform&>(attr);
+		attributes::Transform& ptr1 = reinterpret_cast<attributes::Transform&>(attr);
+		std::cout << "Transform in B addr: " << &ptr1 << std::endl;
 		std::cout << "Set Transform Attribute: Position("
 				  << ptr1.position.x << ", "
 				  << ptr1.position.y << ", "
