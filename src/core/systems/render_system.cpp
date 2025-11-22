@@ -10,6 +10,14 @@
 
 namespace core::systems {
 
+void RenderSystem::Start() {
+	// Initialization if needed
+}
+
+void RenderSystem::StartArchetype(ecs::Archetype& archetype) {
+	// Initialization per archetype if needed
+}
+
 void RenderSystem::Tick(float delta_time) {
 	// Tick
 }

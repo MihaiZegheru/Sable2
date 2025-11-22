@@ -28,6 +28,16 @@ void SystemManager::RebuildArchetypeCache(ArchetypeManager& archetype_manager) {
 	}
 }
 
+void SystemManager::StartSystems() {
+	for (auto& [type, system] : systems_) {
+		auto& archetypes = system_archetypes_[type];
+		for (auto& archetype_ref : archetypes) {
+			System& sys = *system;
+			sys.StartArchetype(archetype_ref.get());
+		}
+	}
+}
+
 void SystemManager::UpdateSystems(float delta_time) {
 	for (auto& [type, system] : systems_) {
 		auto& archetypes = system_archetypes_[type];

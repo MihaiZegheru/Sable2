@@ -35,6 +35,10 @@ public:
 	void RegisterSystem(ArchetypeSignature& signature) {
 		system_manager_.RegisterSystem<T>(signature);
 	}
+	// Calls the Start function for all registered systems.
+	void StartSystems() {
+		system_manager_.StartSystems();
+	}
 	// Updates all registered systems.
 	void UpdateSystems(float delta_time) {
 		system_manager_.UpdateSystems(delta_time);

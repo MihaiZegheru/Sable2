@@ -9,6 +9,14 @@
 
 namespace core::systems {
 
+void CameraSystem::Start() {
+	// Initialization if needed
+}
+
+void CameraSystem::StartArchetype(ecs::Archetype& archetype) {
+	// Initialization per archetype if needed
+}
+
 void CameraSystem::Tick(float delta_time) {
 	// Tick
 }

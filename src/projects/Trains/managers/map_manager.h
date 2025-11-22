@@ -15,6 +15,7 @@
 #include "core/ecs/ecs_manager.h"
 #include "core/assetloader/asset_loader_manager.h"
 #include "core/render/renderer.h"
+#include "core/ecs/types.h"
 
 constexpr float kTileWidth = 28.0f;
 constexpr float kTileHeight = 33.0f;
@@ -95,11 +96,44 @@ namespace trains::managers {
 
 class MapManager {
 public:
-	explicit MapManager() = default;
+	static MapManager& GetInstance() {
+		static MapManager instance;
+		return instance;
+	}
 
 	void GenerateMap(int radius);
 
+	inline TileCoord GetStartingTile() const {
+		return placed_tracks_.begin()->first; 
+	}
+
+	inline std::optional<std::vector<TileCoord>> GetNextTrackTiles(const TileCoord& current) const {
+		auto it = track_graph_.find(current);
+		if (it != track_graph_.end()) {
+			return it->second;
+		}
+		return std::nullopt;
+	}
+
+	inline core::ecs::Entity& GetTileEntityAt(const TileCoord& coord) const {
+		auto it = coords_to_tiles_.find(coord);
+		if (it != coords_to_tiles_.end()) {
+			return const_cast<core::ecs::Entity&>(it->second);
+		}
+		throw std::runtime_error("TileCoord not found in coords_to_tiles_");
+	}
+
+	inline TrackType GetTrackTypeAt(const TileCoord& coord) const {
+		auto it = placed_tracks_.find(coord);
+		if (it != placed_tracks_.end()) {
+			return it->second;
+		}
+		throw std::runtime_error("TileCoord not found in placed_tracks_");
+	}
+
 private:
+	MapManager() = default;
+
 	void LoadTileModels();
 
 	void GenerateBase(int radius);
@@ -113,7 +147,9 @@ private:
 	std::unordered_map<std::string, size_t> tile_models_;
 	std::unordered_map<TileCoord, core::ecs::Entity, std::hash<TileCoord>> coords_to_tiles_;
 	std::unordered_set<TileCoord, std::hash<TileCoord>> free_tiles_;
-	 std::unordered_map<TileCoord, TrackType, std::hash<TileCoord>> placed_tracks_;
+	std::unordered_map<TileCoord, TrackType, std::hash<TileCoord>> placed_tracks_;
+
+	std::unordered_map<TileCoord, std::vector<TileCoord>, std::hash<TileCoord>> track_graph_;
 
 	core::ecs::ECSManager& ecs_manager_ = core::ecs::ECSManager::GetInstance();
 	core::assetloader::AssetLoaderManager& asset_loader_ = core::assetloader::AssetLoaderManager::GetInstance();

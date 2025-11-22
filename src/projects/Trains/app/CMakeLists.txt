@@ -9,7 +9,10 @@ target_link_libraries(trains PRIVATE
 	platform
 	attributes
 	assetloader
-	managers2
+	time
+	train_managers
+	trains_systems
+	trains_attributes
 )
 
 set_target_properties(trains PROPERTIES

@@ -10,10 +10,14 @@
 #include "core/platform/window.h"
 #include "core/assetloader/asset_loader_manager.h"
 #include "core/attributes/static_mesh.h"
+#include "core/time/apptime.h"
 
 #include "projects/Trains/managers/map_manager.h"
+#include "projects/Trains/attributes/train.h"
+#include "projects/Trains/systems/train_system.h"
 
 using namespace core;
+using namespace trains;
 
 int WINDOW_WIDTH = 2000;
 int WINDOW_HEIGHT = 1200;
@@ -49,59 +53,87 @@ graphics::Mesh CreateSquare(float size, glm::vec3 origin) {
 
 void RegisterAttributesAndSystems() {
 	core::ecs::ECSManager& ecs_manager = core::ecs::ECSManager::GetInstance();
-	ecs_manager.RegisterAttribute<attributes::Transform>();
-	ecs_manager.RegisterAttribute<attributes::Camera>();
-	ecs_manager.RegisterAttribute<attributes::StaticMesh>();
+	ecs_manager.RegisterAttribute<core::attributes::Transform>();
+	ecs_manager.RegisterAttribute<core::attributes::Camera>();
+	ecs_manager.RegisterAttribute<core::attributes::StaticMesh>();
+	ecs_manager.RegisterAttribute<trains::attributes::Train>();
 
 	core::ecs::ArchetypeSignature camera_signature;
 	camera_signature.set(0); // Transform
 	camera_signature.set(1); // Camera
-	ecs_manager.RegisterSystem<systems::CameraSystem>(camera_signature);
+	ecs_manager.RegisterSystem<core::systems::CameraSystem>(camera_signature);
 
 	core::ecs::ArchetypeSignature render_signature;
 	render_signature.set(0); // Transform
 	render_signature.set(2); // StaticMesh
-	ecs_manager.RegisterSystem<systems::RenderSystem>(render_signature);
+	ecs_manager.RegisterSystem<core::systems::RenderSystem>(render_signature);
+
+	core::ecs::ArchetypeSignature train_signature;
+	train_signature.set(0); // Transform
+	train_signature.set(2); // StaticMesh
+	train_signature.set(3); // Train
+	ecs_manager.RegisterSystem<trains::systems::TrainSystem>(train_signature);
 }
 
 int main() {
 	Window window(WINDOW_WIDTH, WINDOW_HEIGHT, "Game Engine");
-	render::Renderer& renderer = render::Renderer::GetInstance();
-	assetloader::AssetLoaderManager& asset_loader = assetloader::AssetLoaderManager::GetInstance();
-	
-    auto model_res = asset_loader.GetModelByPath("Tiles/Debug/debug_tile_empty/debug_tile_empty.obj");
+
+	RegisterAttributesAndSystems();
+
+	core::assetloader::AssetLoaderManager& asset_loader_ = core::assetloader::AssetLoaderManager::GetInstance();
+	core::render::Renderer& renderer_ = core::render::Renderer::GetInstance();
+	auto model_res = asset_loader_.GetModelByPath("Train/Debug/debug_train/debug_train.obj");
+	size_t model_id;
 	if (model_res.has_value()) {
 		graphics::Model& model = *(model_res.value());
 		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader.LoadModel(model);
-		renderer.LoadModel(model);
+		asset_loader_.LoadModel(model);
+		renderer_.LoadModel(model);
+		model_id = model.id;
 	} else {
 		std::cout << "Model not found!" << std::endl;
 	}
 
-	RegisterAttributesAndSystems();
 	core::ecs::ECSManager& ecs_manager = core::ecs::ECSManager::GetInstance();
-
 	core::ecs::Entity entity = ecs_manager.CreateEntity();
-	attributes::Transform transform;
+	core::attributes::Transform transform;
 	transform.position = glm::vec3(0.0f, 700.0f, 0.0f);
 	transform.rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
-	ecs_manager.AddAttribute<attributes::Transform>(entity.id, transform);
-	attributes::Camera camera;
-	ecs_manager.AddAttribute<attributes::Camera>(entity.id, camera);
+	ecs_manager.AddAttribute<core::attributes::Transform>(entity.id, transform);
+	core::attributes::Camera camera;
+	ecs_manager.AddAttribute<core::attributes::Camera>(entity.id, camera);
 
 	glfwSetFramebufferSizeCallback(window.GetInstance(), OnWindowResize);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glClearColor(0.2, 0.2, 0.2, 1);
  
-	trains::managers::MapManager map_manager;
-	map_manager.GenerateMap(10);
+	trains::managers::MapManager& map_manager = trains::managers::MapManager::GetInstance();
+	map_manager.GenerateMap(6);
+	TileCoord starting_tile_coords = map_manager.GetStartingTile();
 
-	float delta_time = 0.001f; // Simulate 1 second per tick
+
+	core::ecs::Entity train = ecs_manager.CreateEntity();
+	core::attributes::Transform train_transform;
+	train_transform.position = glm::vec3(0.0f, 10.0f, 0.0f);
+	train_transform.scale = glm::vec3(10.0f, 10.0f, 10.0f);
+	ecs_manager.AddAttribute<core::attributes::Transform>(train.id, train_transform);
+	core::attributes::StaticMesh train_mesh;
+	train_mesh.model_id = model_id;
+	ecs_manager.AddAttribute<core::attributes::StaticMesh>(train.id, train_mesh);
+	trains::attributes::Train train_attr;
+	train_attr.current_tile_coord = starting_tile_coords;
+	train_attr.next_tile_coord = starting_tile_coords;
+	std::cout << "Starting tile coord: (" << starting_tile_coords.q << ", " << starting_tile_coords.r << ")\n";
+	train_attr.speed = 15.0f;
+	ecs_manager.AddAttribute<trains::attributes::Train>(train.id, train_attr);
+
+	ecs_manager.StartSystems();
+    Time::GetInstance().Init(glfwGetTime());
 	while (!glfwWindowShouldClose(window.GetInstance())) {
+        Time::GetInstance().ComputeDeltaTime(glfwGetTime());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		ecs_manager.UpdateSystems(delta_time);
+		ecs_manager.UpdateSystems(Time::GetInstance().GetDeltaTime());
 
         glfwSwapBuffers(window.GetInstance());
         glfwPollEvents();

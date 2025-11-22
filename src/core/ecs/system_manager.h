@@ -31,6 +31,8 @@ public:
 		system_signatures_[type] = signature;
 	}
 
+	// Calls the Start function for all registered systems.
+	void StartSystems();
 	// Updates all registered systems by ticking their matching archetypes.
 	void UpdateSystems(float delta_time);
 

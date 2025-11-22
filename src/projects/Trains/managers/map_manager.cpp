@@ -75,7 +75,6 @@ std::pair<TileCoord, TileCoord> Sample2EdgeEnpoints(int radius) {
 GeoPos GetGeoPosBetween(const TileCoord& from, const TileCoord& to) {
 	int dq = to.q - from.q;
 	int dr = to.r - from.r;
-	std::cout << "Delta Q: " << dq << ", Delta R: " << dr << std::endl;
 	if (dq == 1 && dr == 0) return GeoPos::kE;
 	if (dq == 1 && dr == -1) return GeoPos::kNE;
 	if (dq == 0 && dr == -1) return GeoPos::kNW;
@@ -177,18 +176,24 @@ void MapManager::GenerateTracks(int radius) {
         TileCoord end   = interest_points[(i + 1) % interest_points.size()];
 
 		std::vector<TileCoord> track_tiles = GeneratePathBetween(start, end);
-		for (const auto& coord : track_tiles) {
-			std::cout << "Track tile at (" << coord.q << ", " << coord.r << ")" << std::endl;
+		if (track_tiles.size() < 2) continue;
+
+		for (const auto& tc : track_tiles) {
+			if (!track_graph_.contains(tc)) {
+				track_graph_[tc] = {};
+			}
 		}
+
+		track_graph_[track_tiles.front()].push_back(track_tiles[1]);
+		track_graph_[track_tiles.back()].push_back(track_tiles[track_tiles.size() - 2]);
 
 		TileCoord prev, current, next;
 		for (size_t i = 1; i < track_tiles.size() - 1; ++i) {
 			prev = track_tiles[i - 1];
 			current = track_tiles[i];
 			next = track_tiles[i + 1];
-			std::cout << "Processing track tile at (" << current.q << ", " << current.r << ")" << std::endl;
-			std::cout << "Previous tile at (" << prev.q << ", " << prev.r << ")" << std::endl;
-			std::cout << "Next tile at (" << next.q << ", " << next.r << ")" << std::endl;
+			track_graph_[current].push_back(prev);
+			track_graph_[current].push_back(next);
 			GeoPos start_pos = GetGeoPosBetween(current, prev);
 			GeoPos end_pos = GetGeoPosBetween(current, next);
 
