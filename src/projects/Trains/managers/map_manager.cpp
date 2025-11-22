@@ -166,6 +166,57 @@ std::vector<TileCoord> MapManager::GeneratePathBetween(const TileCoord start, co
 	return std::move(path);
 }
 
+void MapManager::PlaceRails() {
+	std::cout << "Placing rails on the map..." << std::endl;
+	for (const auto& [node, neighbors] : track_graph_) {
+		TileCoord current = node;
+		std::cout << "Placing rails at TileCoord (" << current.q << ", " << current.r << ")\n" << std::endl;
+
+		for (const auto& neighbor : neighbors) {
+			core::ecs::Entity rail_entity = ecs_manager_.CreateEntity();
+			core::attributes::StaticMesh rail_mesh;
+			std::cout << "  Created rail entity with ID: " << rail_entity.id << std::endl;
+			rail_mesh.model_id = tile_models_["rail_simple"];
+			ecs_manager_.AddAttribute<core::attributes::StaticMesh>(rail_entity.id, rail_mesh);
+			std::cout << "  Rail to neighbor TileCoord (" << neighbor.q << ", " << neighbor.r << ")\n";
+
+			core::attributes::Transform rail_transform;
+			auto it_current = coords_to_tiles_.find(current);
+			auto it_neighbor = coords_to_tiles_.find(neighbor);
+
+			Transform& current_transform = ecs_manager_.GetAttribute<core::attributes::Transform>(it_current->second.id);
+			Transform& neighbor_transform = ecs_manager_.GetAttribute<core::attributes::Transform>(it_neighbor->second.id);
+			rail_transform.position = (neighbor_transform.position + current_transform.position) / 2.0f;
+			rail_transform.position.y = 10.0f;
+			rail_transform.scale = glm::vec3(10.0f, 10.0f, 10.0f);
+			TileCoord from = current;;
+			TileCoord to = neighbor;
+			GeoPos towards = GetGeoPosBetween(from, to);
+			switch (towards) {
+				case GeoPos::kE:
+					rail_transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+					break;
+				case GeoPos::kNE:
+					rail_transform.rotation = glm::vec3(0.0f, 60.0f, 0.0f);
+					break;
+				case GeoPos::kNW:
+					rail_transform.rotation = glm::vec3(0.0f, 120.0f, 0.0f);
+					break;
+				case GeoPos::kW:
+					rail_transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+					break;
+				case GeoPos::kSW:
+					rail_transform.rotation = glm::vec3(0.0f, 60.0f, 0.0f);
+					break;
+				case GeoPos::kSE:
+					rail_transform.rotation = glm::vec3(0.0f, 120.0f, 0.0f);
+					break;
+			}
+			ecs_manager_.AddAttribute<core::attributes::Transform>(rail_entity.id, rail_transform);
+		}
+	}
+}
+
 void MapManager::GenerateTracks(int radius) {
     std::vector<TileCoord> interest_points = SampleRandomPoints(4, radius, 7);
 	std::shuffle(interest_points.begin(), interest_points.end(),
@@ -310,6 +361,7 @@ void MapManager::GenerateMap(int radius) {
 	GenerateBase(radius);
 	GenerateRiver(radius);
 	GenerateTracks(radius);
+	PlaceRails();
 }
 
 void MapManager::LoadTileModels() {
@@ -441,6 +493,17 @@ void MapManager::LoadTileModels() {
 		asset_loader_.LoadModel(model);
 		renderer_.LoadModel(model);
 		tile_models_["debug_tile_station"] = model.id;
+	} else {
+		std::cout << "Model not found!" << std::endl;
+	}
+
+	model_res = asset_loader_.GetModelByPath("Rails/rail_simple/rail_simple.obj");
+	if (model_res.has_value()) {
+		Model& model = *(model_res.value());
+		std::cout << "Model loaded with ID: " << model.id << std::endl;
+		asset_loader_.LoadModel(model);
+		renderer_.LoadModel(model);
+		tile_models_["rail_simple"] = model.id;
 	} else {
 		std::cout << "Model not found!" << std::endl;
 	}

@@ -139,6 +139,7 @@ private:
 	void GenerateBase(int radius);
 	void GenerateRiver(int radius);
 	void GenerateTracks(int radius);
+	void PlaceRails();
 
 	std::vector<TileCoord> SampleRandomPoints(int count, int radius, int min_dist);
 	std::vector<TileCoord> GeneratePathBetween(const TileCoord start, const TileCoord end);
