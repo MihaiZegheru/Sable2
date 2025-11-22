@@ -11,6 +11,9 @@
 #include "core/assetloader/asset_loader_manager.h"
 #include "core/attributes/static_mesh.h"
 #include "core/time/apptime.h"
+#include "core/attributes/follow.h"
+#include "core/systems/follow_system.h"
+#include "core/managers/scene_manager.h"
 
 #include "projects/Trains/managers/map_manager.h"
 #include "projects/Trains/attributes/train.h"
@@ -57,6 +60,7 @@ void RegisterAttributesAndSystems() {
 	ecs_manager.RegisterAttribute<core::attributes::Camera>();
 	ecs_manager.RegisterAttribute<core::attributes::StaticMesh>();
 	ecs_manager.RegisterAttribute<trains::attributes::Train>();
+	ecs_manager.RegisterAttribute<core::attributes::Follow>();
 
 	core::ecs::ArchetypeSignature camera_signature;
 	camera_signature.set(0); // Transform
@@ -73,6 +77,11 @@ void RegisterAttributesAndSystems() {
 	train_signature.set(2); // StaticMesh
 	train_signature.set(3); // Train
 	ecs_manager.RegisterSystem<trains::systems::TrainSystem>(train_signature);
+
+	core::ecs::ArchetypeSignature follow_signature;
+	follow_signature.set(0); // Transform
+	follow_signature.set(4); // Follow
+	ecs_manager.RegisterSystem<core::systems::FollowSystem>(follow_signature);
 }
 
 int main() {
@@ -95,23 +104,18 @@ int main() {
 	}
 
 	core::ecs::ECSManager& ecs_manager = core::ecs::ECSManager::GetInstance();
-	core::ecs::Entity entity = ecs_manager.CreateEntity();
-	core::attributes::Transform transform;
-	transform.position = glm::vec3(0.0f, 700.0f, 0.0f);
-	transform.rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
-	ecs_manager.AddAttribute<core::attributes::Transform>(entity.id, transform);
-	core::attributes::Camera camera;
-	ecs_manager.AddAttribute<core::attributes::Camera>(entity.id, camera);
 
 	glfwSetFramebufferSizeCallback(window.GetInstance(), OnWindowResize);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glClearColor(0.2, 0.2, 0.2, 1);
+
+
  
 	trains::managers::MapManager& map_manager = trains::managers::MapManager::GetInstance();
 	map_manager.GenerateMap(6);
 	TileCoord starting_tile_coords = map_manager.GetStartingTile();
 
-
+	
 	core::ecs::Entity train = ecs_manager.CreateEntity();
 	core::attributes::Transform train_transform;
 	train_transform.position = glm::vec3(0.0f, 10.0f, 0.0f);
@@ -123,9 +127,27 @@ int main() {
 	trains::attributes::Train train_attr;
 	train_attr.current_tile_coord = starting_tile_coords;
 	train_attr.next_tile_coord = starting_tile_coords;
-	std::cout << "Starting tile coord: (" << starting_tile_coords.q << ", " << starting_tile_coords.r << ")\n";
 	train_attr.speed = 15.0f;
 	ecs_manager.AddAttribute<trains::attributes::Train>(train.id, train_attr);
+
+
+	core::ecs::Entity entity = ecs_manager.CreateEntity();
+	core::attributes::Transform transform;
+	transform.position = glm::vec3(0.0f, 700.0f, 0.0f);
+	transform.rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
+	ecs_manager.AddAttribute<core::attributes::Transform>(entity.id, transform);
+	core::attributes::Camera camera;
+	camera.look_at = train.id;
+	ecs_manager.AddAttribute<core::attributes::Camera>(entity.id, camera);
+	std::cout << "Created camera entity with ID: " << entity.id << std::endl;
+	core::attributes::Follow follow;
+	follow.target_entity = train.id;
+	follow.offset = glm::vec3(0.0f, 50.0f, 80.0f);
+	follow.match_rotation = true;
+	ecs_manager.AddAttribute<core::attributes::Follow>(entity.id, follow);
+
+	core::managers::SceneManager& scene_manager = core::managers::SceneManager::GetInstance();
+	scene_manager.SetMainCamera(entity.id);
 
 	ecs_manager.StartSystems();
     Time::GetInstance().Init(glfwGetTime());

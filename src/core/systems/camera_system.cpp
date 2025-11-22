@@ -27,9 +27,14 @@ void CameraSystem::TickArchetype(ecs::Archetype& archetype, float delta_time) {
 		attributes::Transform& transform = ecs_manager_.GetAttribute<attributes::Transform>(entity_id);
 
 		// Update view matrix based on transform
-		glm::mat4 translation = glm::translate(glm::mat4(1.0f), -transform.position);
-		glm::mat4 rotation = glm::yawPitchRoll(glm::radians(-transform.rotation.y), glm::radians(-transform.rotation.x), glm::radians(-transform.rotation.z));
-		camera.view_matrix = rotation * translation;
+		if (camera.look_at != 0) {
+			attributes::Transform& target_transform = ecs_manager_.GetAttribute<attributes::Transform>(camera.look_at);
+			camera.view_matrix = glm::lookAt(transform.position, target_transform.position, glm::vec3(0.0f, 1.0f, 0.0f));
+		} else {
+			glm::mat4 translation = glm::translate(glm::mat4(1.0f), -transform.position);
+			glm::mat4 rotation = glm::yawPitchRoll(glm::radians(-transform.rotation.y), glm::radians(-transform.rotation.x), glm::radians(-transform.rotation.z));
+			camera.view_matrix = rotation * translation;
+		}
 
 		// Update projection matrix based on FOV and aspect ratio (assuming 16:9 here)
 		float aspect_ratio = 16.0f / 9.0f;

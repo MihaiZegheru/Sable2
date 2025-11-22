@@ -6,7 +6,7 @@
 #include "core/render/renderer.h"
 #include "core/ecs/archetype.h"
 #include "core/ecs/types.h"
-#include <iostream>
+#include "core/managers/scene_manager.h"
 
 namespace core::systems {
 
@@ -32,7 +32,10 @@ void RenderSystem::TickArchetype(ecs::Archetype& archetype, float delta_time) {
 		drawable.model_matrix = transform.GetModelMatrix();
 
 		render::Renderer& renderer = render::Renderer::GetInstance();
-		renderer.Draw({drawable}, 0);
+
+		// TODO: Remove hardcoded value
+
+		renderer.Draw({drawable}, managers::SceneManager::GetInstance().GetMainCamera());
 	});
 }
 } // namespace core::systems
