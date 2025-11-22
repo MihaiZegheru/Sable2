@@ -71,17 +71,6 @@ std::pair<TileCoord, TileCoord> Sample2EdgeEnpoints(int radius) {
 	TileCoord end = RandomEdgeTileFrom(side_end, radius);
 	return { start, end };
 }
-
-GeoPos GetGeoPosBetween(const TileCoord& from, const TileCoord& to) {
-	int dq = to.q - from.q;
-	int dr = to.r - from.r;
-	if (dq == 1 && dr == 0) return GeoPos::kE;
-	if (dq == 1 && dr == -1) return GeoPos::kNE;
-	if (dq == 0 && dr == -1) return GeoPos::kNW;
-	if (dq == -1 && dr == 0) return GeoPos::kW;
-	if (dq == -1 && dr == 1) return GeoPos::kSW;
-	if (dq == 0 && dr == 1) return GeoPos::kSE;
-}
 } // namespace
 
 
@@ -192,26 +181,7 @@ void MapManager::PlaceRails() {
 			TileCoord from = current;;
 			TileCoord to = neighbor;
 			GeoPos towards = GetGeoPosBetween(from, to);
-			switch (towards) {
-				case GeoPos::kE:
-					rail_transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-					break;
-				case GeoPos::kNE:
-					rail_transform.rotation = glm::vec3(0.0f, 60.0f, 0.0f);
-					break;
-				case GeoPos::kNW:
-					rail_transform.rotation = glm::vec3(0.0f, 120.0f, 0.0f);
-					break;
-				case GeoPos::kW:
-					rail_transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-					break;
-				case GeoPos::kSW:
-					rail_transform.rotation = glm::vec3(0.0f, 60.0f, 0.0f);
-					break;
-				case GeoPos::kSE:
-					rail_transform.rotation = glm::vec3(0.0f, 120.0f, 0.0f);
-					break;
-			}
+			rail_transform.rotation.y = GetRotationByGeoPos(towards);
 			ecs_manager_.AddAttribute<core::attributes::Transform>(rail_entity.id, rail_transform);
 		}
 	}

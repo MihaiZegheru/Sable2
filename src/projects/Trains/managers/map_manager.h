@@ -103,6 +103,29 @@ public:
 
 	void GenerateMap(int radius);
 
+	static GeoPos GetGeoPosBetween(const TileCoord& from, const TileCoord& to) {
+		int dq = to.q - from.q;
+		int dr = to.r - from.r;
+		if (dq == 1 && dr == 0) return GeoPos::kE;
+		if (dq == 1 && dr == -1) return GeoPos::kNE;
+		if (dq == 0 && dr == -1) return GeoPos::kNW;
+		if (dq == -1 && dr == 0) return GeoPos::kW;
+		if (dq == -1 && dr == 1) return GeoPos::kSW;
+		if (dq == 0 && dr == 1) return GeoPos::kSE;
+	}
+
+	static float GetRotationByGeoPos(GeoPos pos) {
+		switch (pos) {
+			case GeoPos::kE:  return 0.0f;
+			case GeoPos::kNE: return 60.0f;
+			case GeoPos::kNW: return 120.0f;
+			case GeoPos::kW:  return 180.0f;
+			case GeoPos::kSW: return 240.0f;
+			case GeoPos::kSE: return 300.0f;
+			default: return 0.0f;
+		}
+	}
+
 	inline TileCoord GetStartingTile() const {
 		return placed_tracks_.begin()->first; 
 	}

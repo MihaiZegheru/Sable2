@@ -42,15 +42,13 @@ void TrainSystem::StartArchetype(core::ecs::Archetype& archetype) {
 		core::attributes::Transform& current_tile_transform = ecs_manager_.GetAttribute<core::attributes::Transform>(current_tile_entity.id);
 
 		transform.position.x = current_tile_transform.position.x;
-		transform.position.z = current_tile_transform.position.z;	
+		transform.position.z = current_tile_transform.position.z;
 	});
 }
 
 void TrainSystem::Tick(float delta_time) {
 	// Tick
 }
-
-// TODO: Add start function to initialize train positions on the map
 
 void TrainSystem::TickArchetype(core::ecs::Archetype& archetype, float delta_time) {
 	archetype.ForEach([this, delta_time, &archetype](core::ecs::EntityID entity_id, size_t index) {
@@ -71,10 +69,20 @@ void TrainSystem::TickArchetype(core::ecs::Archetype& archetype, float delta_tim
 			transform.position.z = targetXZ.y;
 
 			train.current_tile_coord = train.next_tile_coord;
+
 			auto next_tiles_opt = map_manager_.GetNextTrackTiles(train.current_tile_coord);
 			if (next_tiles_opt.has_value() && !next_tiles_opt->empty()) {
-				train.next_tile_coord = next_tiles_opt->at(0); // Use first for now
+				int tile_idx = 0;
+				while (tile_idx < next_tiles_opt->size()) {
+					if (next_tiles_opt->at(tile_idx) != train.current_tile_coord) {
+						break;
+					}
+					tile_idx++;
+				}
+				train.next_tile_coord = next_tiles_opt->at(tile_idx);
 			}
+			GeoPos next_direction = map_manager_.GetGeoPosBetween(train.current_tile_coord, train.next_tile_coord);
+			transform.rotation.y = map_manager_.GetRotationByGeoPos(next_direction);
 		} else {
 			direction /= distance;
 			glm::vec2 move = direction * train.speed * delta_time;
@@ -86,14 +94,6 @@ void TrainSystem::TickArchetype(core::ecs::Archetype& archetype, float delta_tim
 			transform.position.x += move.x;
 			transform.position.z += move.y;
 		}
-
-		// TrackType current_track_type = map_manager_.GetTrackTypeAt(train.current_tile_coord);
-		// float targetRotationY = GetRotationYForTrack(current_track_type);
-
-		// Smoothly interpolate rotation (optional) to avoid snapping
-		// float rotationSpeed = 5.0f; // adjust speed
-		// transform.rotation.y = glm::mix(transform.rotation.y, glm::radians(targetRotationY), rotationSpeed * delta_time);
-
 	});
 }
 } // namespace trains::systems
