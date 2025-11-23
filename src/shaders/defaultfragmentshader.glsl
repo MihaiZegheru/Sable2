@@ -31,7 +31,7 @@ out vec4 fragColor;
 
 float specularExponent = 8;
 vec3 specularReflectionColor = vec3(0.2f); 
-float ambientLightIntensity = 0.7f;
+float ambientLightIntensity = 1.0f;
 
 vec3 GetNormal()
 {

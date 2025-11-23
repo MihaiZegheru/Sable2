@@ -7,6 +7,9 @@
 #include <cstddef>
 #include <functional>
 #include <map>
+#include <optional>
+#include <vector>
+#include <string_view>
 
 #include <glm/vec3.hpp>
 #include <glm/gtx/hash.hpp>
@@ -19,6 +22,12 @@
 
 constexpr float kTileWidth = 28.0f;
 constexpr float kTileHeight = 33.0f;
+
+const std::vector<std::string_view> kFieldTileModels = {
+	"field_tile",
+	"field_tile_variation01",
+	"field_tile_variation02"
+};
 
 enum class GeoPos {
 	kN,
@@ -80,6 +89,8 @@ struct TileCoord {
 	}
 };
 
+using Rail = std::pair<TileCoord, TileCoord>;
+
 namespace std {
     template<>
     struct hash<TileCoord> {
@@ -89,6 +100,15 @@ namespace std {
             return h1 ^ (h2 + 0x9e3779b97f4a7c15ULL + (h1 << 6) + (h1 >> 2));
         }
     };
+
+	template<>
+	struct hash<Rail> {
+		std::size_t operator()(const Rail& p) const noexcept {
+			std::size_t h1 = std::hash<TileCoord>()(p.first);
+			std::size_t h2 = std::hash<TileCoord>()(p.second);
+			return h1 ^ (h2 + 0x9e3779b97f4a7c15ULL + (h1 << 6) + (h1 >> 2));
+		}
+	};
 }
 
 
@@ -127,7 +147,7 @@ public:
 	}
 
 	inline TileCoord GetStartingTile() const {
-		return placed_tracks_.begin()->first; 
+		return placed_tracks_.begin()->first;
 	}
 
 	inline std::optional<std::vector<TileCoord>> GetNextTrackTiles(const TileCoord& current) const {
@@ -154,6 +174,15 @@ public:
 		throw std::runtime_error("TileCoord not found in placed_tracks_");
 	}
 
+	inline core::ecs::EntityID GetRailEntityAt(const Rail& rail) const {
+		for (const auto& [key, value] : track_entities_) {
+			if (key == rail) {
+				return value;
+			}
+		}
+		throw std::runtime_error("Track entity not found for given Rail");
+	}
+
 private:
 	MapManager() = default;
 
@@ -172,6 +201,9 @@ private:
 	std::unordered_map<TileCoord, core::ecs::Entity, std::hash<TileCoord>> coords_to_tiles_;
 	std::unordered_set<TileCoord, std::hash<TileCoord>> free_tiles_;
 	std::unordered_map<TileCoord, TrackType, std::hash<TileCoord>> placed_tracks_;
+	std::unordered_map<std::pair<TileCoord, TileCoord>, core::ecs::EntityID,
+		std::hash<std::pair<TileCoord, TileCoord>>> track_entities_;
+	std::unordered_set<TileCoord, std::hash<TileCoord>> river_tiles_;
 
 	std::unordered_map<TileCoord, std::vector<TileCoord>, std::hash<TileCoord>> track_graph_;
 

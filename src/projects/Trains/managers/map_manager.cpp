@@ -162,21 +162,25 @@ void MapManager::PlaceRails() {
 		std::cout << "Placing rails at TileCoord (" << current.q << ", " << current.r << ")\n" << std::endl;
 
 		for (const auto& neighbor : neighbors) {
+			if (track_entities_.contains({current, neighbor})) {
+				continue;
+			}
 			core::ecs::Entity rail_entity = ecs_manager_.CreateEntity();
 			core::attributes::StaticMesh rail_mesh;
-			std::cout << "  Created rail entity with ID: " << rail_entity.id << std::endl;
 			rail_mesh.model_id = tile_models_["rail_simple"];
 			ecs_manager_.AddAttribute<core::attributes::StaticMesh>(rail_entity.id, rail_mesh);
-			std::cout << "  Rail to neighbor TileCoord (" << neighbor.q << ", " << neighbor.r << ")\n";
 
 			core::attributes::Transform rail_transform;
 			auto it_current = coords_to_tiles_.find(current);
 			auto it_neighbor = coords_to_tiles_.find(neighbor);
 
+			track_entities_.insert({{current, neighbor}, rail_entity.id});
+			track_entities_.insert({{neighbor, current}, rail_entity.id});
+
 			Transform& current_transform = ecs_manager_.GetAttribute<core::attributes::Transform>(it_current->second.id);
 			Transform& neighbor_transform = ecs_manager_.GetAttribute<core::attributes::Transform>(it_neighbor->second.id);
 			rail_transform.position = (neighbor_transform.position + current_transform.position) / 2.0f;
-			rail_transform.position.y = 10.0f;
+			rail_transform.position.y = 6.0f;
 			rail_transform.scale = glm::vec3(10.0f, 10.0f, 10.0f);
 			TileCoord from = current;;
 			TileCoord to = neighbor;
@@ -251,15 +255,8 @@ void MapManager::GenerateTracks(int radius) {
 						  << static_cast<int>(start_pos) << " to "
 						  << static_cast<int>(end_pos) << std::endl;
 			}
-
-			auto it = coords_to_tiles_.find(current);
-			if (it != coords_to_tiles_.end()) {
-				Entity tile_entity = it->second;
-				StaticMesh& static_mesh = ecs_manager_.GetAttribute<StaticMesh>(tile_entity.id);
-				static_mesh.model_id = tile_models_[track_to_model[placed_tracks_[current]]];
-				free_tiles_.erase(current);
-			}
 		}
+		// TODO: Add ports or not if river tile
 		{
 			auto it = coords_to_tiles_.find(start);
 			if (it != coords_to_tiles_.end()) {
@@ -295,8 +292,9 @@ void MapManager::GenerateRiver(int radius) {
 		if (it != coords_to_tiles_.end()) {
 			Entity tile_entity = it->second;
 			StaticMesh& static_mesh = ecs_manager_.GetAttribute<StaticMesh>(tile_entity.id);
-			static_mesh.model_id = tile_models_["debug_tile_river"];
+			static_mesh.model_id = tile_models_["water_tile"];
 			free_tiles_.erase(coord);
+			river_tiles_.insert(coord);
 		}
 	}
 }
@@ -316,7 +314,7 @@ void MapManager::GenerateBase(int radius) {
 			transform.position = world_pos;
 			ecs_manager_.AddAttribute<Transform>(tile_entity.id, transform);
 			StaticMesh static_mesh;
-			static_mesh.model_id = tile_models_["debug_tile_empty"];
+			static_mesh.model_id = tile_models_[std::string(kFieldTileModels[rand() % kFieldTileModels.size()])];
 			ecs_manager_.AddAttribute<StaticMesh>(tile_entity.id, static_mesh);
 
 			coords_to_tiles_.insert({coord, tile_entity});
@@ -346,13 +344,13 @@ void MapManager::LoadTileModels() {
 		std::cout << "Model not found!" << std::endl;
 	}
 
-	model_res = asset_loader_.GetModelByPath("Tiles/Debug/debug_tile_river/debug_tile_river.obj");
+	model_res = asset_loader_.GetModelByPath("Tiles/water_tile/water_tile.obj");
 	if (model_res.has_value()) {
 		Model& model = *(model_res.value());
 		std::cout << "Model loaded with ID: " << model.id << std::endl;
 		asset_loader_.LoadModel(model);
 		renderer_.LoadModel(model);
-		tile_models_["debug_tile_river"] = model.id;
+		tile_models_["water_tile"] = model.id;
 	} else {
 		std::cout << "Model not found!" << std::endl;
 	}
@@ -474,6 +472,39 @@ void MapManager::LoadTileModels() {
 		asset_loader_.LoadModel(model);
 		renderer_.LoadModel(model);
 		tile_models_["rail_simple"] = model.id;
+	} else {
+		std::cout << "Model not found!" << std::endl;
+	}
+
+	model_res = asset_loader_.GetModelByPath("Tiles/field_tile/field_tile.obj");
+	if (model_res.has_value()) {
+		Model& model = *(model_res.value());
+		std::cout << "Model loaded with ID: " << model.id << std::endl;
+		asset_loader_.LoadModel(model);
+		renderer_.LoadModel(model);
+		tile_models_["field_tile"] = model.id;
+	} else {
+		std::cout << "Model not found!" << std::endl;
+	}
+
+	model_res = asset_loader_.GetModelByPath("Tiles/field_tile_variation01/field_tile_variation01.obj");
+	if (model_res.has_value()) {
+		Model& model = *(model_res.value());
+		std::cout << "Model loaded with ID: " << model.id << std::endl;
+		asset_loader_.LoadModel(model);
+		renderer_.LoadModel(model);
+		tile_models_["field_tile_variation01"] = model.id;
+	} else {
+		std::cout << "Model not found!" << std::endl;
+	}
+
+	model_res = asset_loader_.GetModelByPath("Tiles/field_tile_variation02/field_tile_variation02.obj");
+	if (model_res.has_value()) {
+		Model& model = *(model_res.value());
+		std::cout << "Model loaded with ID: " << model.id << std::endl;
+		asset_loader_.LoadModel(model);
+		renderer_.LoadModel(model);
+		tile_models_["field_tile_variation02"] = model.id;
 	} else {
 		std::cout << "Model not found!" << std::endl;
 	}

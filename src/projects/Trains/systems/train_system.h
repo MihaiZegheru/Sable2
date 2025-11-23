@@ -4,6 +4,8 @@
 #include "core/ecs/system.h"
 #include "core/ecs/archetype.h"
 #include "core/ecs/ecs_manager.h"
+#include "core/managers/input_manager.h"
+
 #include "projects/Trains/attributes/train.h"
 #include "projects/Trains/managers/map_manager.h"
 
@@ -19,6 +21,7 @@ public:
 public:
 	core::ecs::ECSManager& ecs_manager_ = core::ecs::ECSManager::GetInstance();
 	trains::managers::MapManager& map_manager_ = trains::managers::MapManager::GetInstance();
+	core::managers::InputManager& input_manager_ = core::managers::InputManager::GetInstance();
 };
 } // namespace trains::systems
 

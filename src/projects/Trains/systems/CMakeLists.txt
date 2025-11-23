@@ -9,4 +9,6 @@ target_link_libraries(trains_systems PUBLIC
 	trains_attributes
 	ecs
 	render
+	attributes
+	glfw
 )

@@ -14,6 +14,7 @@
 #include "core/attributes/follow.h"
 #include "core/systems/follow_system.h"
 #include "core/managers/scene_manager.h"
+#include "core/managers/input_manager.h"
 
 #include "projects/Trains/managers/map_manager.h"
 #include "projects/Trains/attributes/train.h"
@@ -89,9 +90,13 @@ int main() {
 
 	RegisterAttributesAndSystems();
 
+    core::managers::InputManager& inputManager = core::managers::InputManager::GetInstance();
+	trains::managers::MapManager& map_manager = trains::managers::MapManager::GetInstance();
+	core::managers::SceneManager& scene_manager = core::managers::SceneManager::GetInstance();
+
 	core::assetloader::AssetLoaderManager& asset_loader_ = core::assetloader::AssetLoaderManager::GetInstance();
 	core::render::Renderer& renderer_ = core::render::Renderer::GetInstance();
-	auto model_res = asset_loader_.GetModelByPath("Train/Debug/debug_train/debug_train.obj");
+	auto model_res = asset_loader_.GetModelByPath("Train/train_locomotive/train_locomotive.obj");
 	size_t model_id;
 	if (model_res.has_value()) {
 		graphics::Model& model = *(model_res.value());
@@ -103,6 +108,18 @@ int main() {
 		std::cout << "Model not found!" << std::endl;
 	}
 
+	auto wagon_model_res = asset_loader_.GetModelByPath("Train/train_wagon/train_wagon.obj");
+	size_t wagon_model_id;
+	if (wagon_model_res.has_value()) {
+		graphics::Model& wagon_model = *(wagon_model_res.value());
+		std::cout << "Wagon model loaded with ID: " << wagon_model.id << std::endl;
+		asset_loader_.LoadModel(wagon_model);
+		renderer_.LoadModel(wagon_model);
+		wagon_model_id = wagon_model.id;
+	} else {
+		std::cout << "Wagon model not found!" << std::endl;
+	}
+
 	core::ecs::ECSManager& ecs_manager = core::ecs::ECSManager::GetInstance();
 
 	glfwSetFramebufferSizeCallback(window.GetInstance(), OnWindowResize);
@@ -110,15 +127,13 @@ int main() {
     glClearColor(0.2, 0.2, 0.2, 1);
 
 
- 
-	trains::managers::MapManager& map_manager = trains::managers::MapManager::GetInstance();
 	map_manager.GenerateMap(6);
 	TileCoord starting_tile_coords = map_manager.GetStartingTile();
 
 	
 	core::ecs::Entity train = ecs_manager.CreateEntity();
 	core::attributes::Transform train_transform;
-	train_transform.position = glm::vec3(0.0f, 10.0f, 0.0f);
+	train_transform.position = glm::vec3(0.0f, 7.0f, 0.0f);
 	train_transform.scale = glm::vec3(10.0f, 10.0f, 10.0f);
 	ecs_manager.AddAttribute<core::attributes::Transform>(train.id, train_transform);
 	core::attributes::StaticMesh train_mesh;
@@ -128,7 +143,36 @@ int main() {
 	train_attr.current_tile_coord = starting_tile_coords;
 	train_attr.next_tile_coord = starting_tile_coords;
 	train_attr.speed = 15.0f;
+	train_attr.is_locomotive = true;
 	ecs_manager.AddAttribute<trains::attributes::Train>(train.id, train_attr);
+
+	float first_wagon_distance = 12.0f;
+	float base_wagon_distance = 8.0f;
+
+	core::ecs::EntityID wagon_id = train.id;
+	for (int i = 0; i < 5; ++i) {
+		core::ecs::Entity new_wagon = ecs_manager.CreateEntity();
+		core::attributes::Transform new_wagon_transform;
+		new_wagon_transform.position = glm::vec3(0.0f, 7.0f, -15.0f * (i + 2));
+		new_wagon_transform.scale = glm::vec3(10.0f, 10.0f, 10.0f);
+		ecs_manager.AddAttribute<core::attributes::Transform>(new_wagon.id, new_wagon_transform);
+		core::attributes::StaticMesh new_wagon_mesh;
+		new_wagon_mesh.model_id = wagon_model_id;
+		ecs_manager.AddAttribute<core::attributes::StaticMesh>(new_wagon.id, new_wagon_mesh);
+		trains::attributes::Train new_wagon_attr;
+		new_wagon_attr.current_tile_coord = starting_tile_coords;
+		new_wagon_attr.next_tile_coord = starting_tile_coords;
+		new_wagon_attr.speed = 15.0f;
+		new_wagon_attr.front_wagon = wagon_id;
+		if (i == 0) {
+			new_wagon_attr.distance_to_front_wagon = first_wagon_distance;
+		} else {
+			new_wagon_attr.distance_to_front_wagon = base_wagon_distance;
+		}
+		ecs_manager.AddAttribute<trains::attributes::Train>(new_wagon.id, new_wagon_attr);
+
+		wagon_id = new_wagon.id;
+	}
 
 
 	core::ecs::Entity entity = ecs_manager.CreateEntity();
@@ -146,13 +190,16 @@ int main() {
 	follow.match_rotation = true;
 	ecs_manager.AddAttribute<core::attributes::Follow>(entity.id, follow);
 
-	core::managers::SceneManager& scene_manager = core::managers::SceneManager::GetInstance();
+	// follow locomotive
 	scene_manager.SetMainCamera(entity.id);
+
 
 	ecs_manager.StartSystems();
     Time::GetInstance().Init(glfwGetTime());
 	while (!glfwWindowShouldClose(window.GetInstance())) {
         Time::GetInstance().ComputeDeltaTime(glfwGetTime());
+		inputManager.Listen(window.GetInstance());
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		ecs_manager.UpdateSystems(Time::GetInstance().GetDeltaTime());
