@@ -19,14 +19,24 @@
 #include "core/assetloader/asset_loader_manager.h"
 #include "core/render/renderer.h"
 #include "core/ecs/types.h"
+#include "projects/Trains/types/resource_type.h"
 
 constexpr float kTileWidth = 28.0f;
 constexpr float kTileHeight = 33.0f;
+
+using namespace trains::types;
 
 const std::vector<std::string_view> kFieldTileModels = {
 	"field_tile",
 	"field_tile_variation01",
 	"field_tile_variation02"
+};
+
+const std::unordered_map<ResourceType, std::string_view> kGatherPointModels = {
+	{ ResourceType::kFood, "gather_point_food" },
+	{ ResourceType::kWood, "gather_point_wood" },
+	{ ResourceType::kStone, "gather_point_stone" },
+	{ ResourceType::kGold, "gather_point_gold" }
 };
 
 enum class GeoPos {
@@ -183,6 +193,26 @@ public:
 		throw std::runtime_error("Track entity not found for given Rail");
 	}
 
+	inline std::optional<trains::types::ResourceType> GetResourceTypeAt(const TileCoord& coord) const {
+		auto it = coords_to_resource_.find(coord);
+		if (it != coords_to_resource_.end()) {
+			return it->second;
+		}
+		return std::nullopt;
+	}
+
+	inline TileCoord GetCentralBankCoord() const {
+		return central_bank_coord_;
+	}
+
+	inline size_t GetModelIdByResourceType(ResourceType res_type) const {
+		auto it = resource_models_.find(res_type);
+		if (it != resource_models_.end()) {
+			return it->second;
+		}
+		throw std::runtime_error("ResourceType not found in resource_models_");
+	}
+
 private:
 	MapManager() = default;
 
@@ -192,20 +222,25 @@ private:
 	void GenerateRiver(int radius);
 	void GenerateTracks(int radius);
 	void PlaceRails();
+	void PlaceBuildings();
 
 	std::vector<TileCoord> SampleRandomPoints(int count, int radius, int min_dist);
 	std::vector<TileCoord> GeneratePathBetween(const TileCoord start, const TileCoord end);
 
 private:
 	std::unordered_map<std::string, size_t> tile_models_;
+	std::unordered_map<ResourceType, size_t> resource_models_;
 	std::unordered_map<TileCoord, core::ecs::Entity, std::hash<TileCoord>> coords_to_tiles_;
 	std::unordered_set<TileCoord, std::hash<TileCoord>> free_tiles_;
 	std::unordered_map<TileCoord, TrackType, std::hash<TileCoord>> placed_tracks_;
 	std::unordered_map<std::pair<TileCoord, TileCoord>, core::ecs::EntityID,
 		std::hash<std::pair<TileCoord, TileCoord>>> track_entities_;
 	std::unordered_set<TileCoord, std::hash<TileCoord>> river_tiles_;
+	std::unordered_set<TileCoord, std::hash<TileCoord>> building_tiles_;
 
 	std::unordered_map<TileCoord, std::vector<TileCoord>, std::hash<TileCoord>> track_graph_;
+	std::unordered_map<TileCoord, ResourceType, std::hash<TileCoord>> coords_to_resource_;;
+	TileCoord central_bank_coord_;
 
 	core::ecs::ECSManager& ecs_manager_ = core::ecs::ECSManager::GetInstance();
 	core::assetloader::AssetLoaderManager& asset_loader_ = core::assetloader::AssetLoaderManager::GetInstance();

@@ -13,6 +13,10 @@
 #include "core/assetloader/asset_loader_manager.h"
 #include "core/render/renderer.h"
 #include "core/graphics/model.h"
+#include "projects/Trains/types/resource_type.h"
+#include "projects/Trains/attributes/bank.h"
+#include "projects/Trains/attributes/resource_generator.h"
+
 
 using namespace core;
 using namespace core::ecs;
@@ -20,6 +24,7 @@ using namespace core::attributes;
 using namespace core::assetloader;
 using namespace core::render;
 using namespace core::graphics;
+using namespace trains::types;
 
 namespace trains::managers {
 
@@ -155,16 +160,75 @@ std::vector<TileCoord> MapManager::GeneratePathBetween(const TileCoord start, co
 	return std::move(path);
 }
 
+void MapManager::PlaceBuildings() {
+	std::cout << "Placing buildings on the map..." << std::endl;
+
+	int index = -1;
+	for (const auto& tile_coord : building_tiles_) {
+		core::ecs::Entity& building_entity = coords_to_tiles_.at(tile_coord);
+		// look around for a free tile to place the building
+		for (auto n : neighbors) {
+			TileCoord neighbor_coord = { tile_coord.q + n.q, tile_coord.r + n.r };
+			if (!free_tiles_.contains(neighbor_coord)) continue;
+
+			auto it = coords_to_tiles_.find(neighbor_coord);
+			if (it == coords_to_tiles_.end()) continue;
+			core::ecs::Entity& neighbor_entity = it->second;
+
+			
+			if (index == -1) {
+				core::ecs::Entity central_bank_entity = ecs_manager_.CreateEntity();
+				// Place central bank
+				core::attributes::Transform building_transform;
+				building_transform.position = ecs_manager_.GetAttribute<core::attributes::Transform>(neighbor_entity.id).position;
+				building_transform.position.y += 5.0f;
+				building_transform.scale = glm::vec3(15.0f, 15.0f, 15.0f);
+				ecs_manager_.AddAttribute<core::attributes::Transform>(central_bank_entity.id, building_transform);
+				
+				core::attributes::StaticMesh building_mesh;
+				building_mesh.model_id = tile_models_["central_bank"];
+				central_bank_coord_ = tile_coord;
+				ecs_manager_.AddAttribute<core::attributes::StaticMesh>(central_bank_entity.id, building_mesh);
+
+				trains::attributes::Bank bank_attr;
+				ecs_manager_.AddAttribute<trains::attributes::Bank>(central_bank_entity.id, bank_attr);
+			} else {
+				// place resources in order
+				core::ecs::Entity resource_entity = ecs_manager_.CreateEntity();
+				core::attributes::Transform building_transform;
+				building_transform.position = ecs_manager_.GetAttribute<core::attributes::Transform>(neighbor_entity.id).position;
+				building_transform.position.y += 5.0f;
+				building_transform.scale = glm::vec3(10.0f, 10.0f, 10.0f);
+				ecs_manager_.AddAttribute<core::attributes::Transform>(resource_entity.id, building_transform);
+
+				ResourceType res_type = static_cast<ResourceType>(index % kGatherPointModels.size());
+				core::attributes::StaticMesh building_mesh;
+				building_mesh.model_id = tile_models_[std::string(kGatherPointModels.at(res_type))];
+				coords_to_resource_[tile_coord] = res_type;
+				ecs_manager_.AddAttribute<core::attributes::StaticMesh>(resource_entity.id, building_mesh);
+
+				trains::attributes::ResourceGenerator res_gen_attr;
+				res_gen_attr.resource_type = res_type;
+				ecs_manager_.AddAttribute<trains::attributes::ResourceGenerator>(resource_entity.id, res_gen_attr);
+			}
+			free_tiles_.erase(neighbor_coord);
+			break;
+		}
+		index++;
+	}
+}
+
 void MapManager::PlaceRails() {
 	std::cout << "Placing rails on the map..." << std::endl;
 	for (const auto& [node, neighbors] : track_graph_) {
 		TileCoord current = node;
-		std::cout << "Placing rails at TileCoord (" << current.q << ", " << current.r << ")\n" << std::endl;
-
+		free_tiles_.erase(current);
+		
 		for (const auto& neighbor : neighbors) {
 			if (track_entities_.contains({current, neighbor})) {
 				continue;
 			}
+			free_tiles_.erase(neighbor);
 			core::ecs::Entity rail_entity = ecs_manager_.CreateEntity();
 			core::attributes::StaticMesh rail_mesh;
 			rail_mesh.model_id = tile_models_["rail_simple"];
@@ -192,13 +256,15 @@ void MapManager::PlaceRails() {
 }
 
 void MapManager::GenerateTracks(int radius) {
-    std::vector<TileCoord> interest_points = SampleRandomPoints(4, radius, 7);
+    std::vector<TileCoord> interest_points = SampleRandomPoints(7, radius, 7);
 	std::shuffle(interest_points.begin(), interest_points.end(),
 		std::default_random_engine(std::chrono::system_clock::now().time_since_epoch().count()));
 
     for (size_t i = 0; i < interest_points.size(); ++i) {
         TileCoord start = interest_points[i];
         TileCoord end   = interest_points[(i + 1) % interest_points.size()];
+		building_tiles_.insert(start);
+		building_tiles_.insert(end);
 
 		std::vector<TileCoord> track_tiles = GeneratePathBetween(start, end);
 		if (track_tiles.size() < 2) continue;
@@ -330,6 +396,7 @@ void MapManager::GenerateMap(int radius) {
 	GenerateRiver(radius);
 	GenerateTracks(radius);
 	PlaceRails();
+	PlaceBuildings();
 }
 
 void MapManager::LoadTileModels() {
@@ -505,6 +572,17 @@ void MapManager::LoadTileModels() {
 		asset_loader_.LoadModel(model);
 		renderer_.LoadModel(model);
 		tile_models_["field_tile_variation02"] = model.id;
+	} else {
+		std::cout << "Model not found!" << std::endl;
+	}
+
+	model_res = asset_loader_.GetModelByPath("Buildings/central_bank/central_bank.obj");
+	if (model_res.has_value()) {
+		Model& model = *(model_res.value());
+		std::cout << "Model loaded with ID: " << model.id << std::endl;
+		asset_loader_.LoadModel(model);
+		renderer_.LoadModel(model);
+		tile_models_["central_bank"] = model.id;
 	} else {
 		std::cout << "Model not found!" << std::endl;
 	}

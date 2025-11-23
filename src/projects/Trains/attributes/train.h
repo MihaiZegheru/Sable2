@@ -18,9 +18,11 @@ struct Train : public core::ecs::IAttribute {
 
 	uint8_t selected_track_index;
 	std::vector<TileCoord> track_selection_pool;
+	bool just_spawned;
 
 	bool is_locomotive;
 	core::ecs::EntityID front_wagon;
+	core::ecs::EntityID tail;
 	float distance_to_front_wagon;
 	bool checked_target;
 
@@ -32,6 +34,7 @@ struct Train : public core::ecs::IAttribute {
 			  is_locomotive{false},
 			  distance_to_front_wagon{5.0f},
 			  front_wagon{0},
+			  just_spawned{true},
 			  checked_target{false} {}
 };
 } // namespace trains::attributes

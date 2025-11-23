@@ -5,4 +5,5 @@ target_include_directories(trains_attributes INTERFACE
 )
 
 target_link_libraries(trains_attributes INTERFACE
+	trains_types
 )

@@ -10,4 +10,5 @@ target_link_libraries(train_managers PUBLIC
 	systems
 	render
 	assetloader
+	trains_types
 )

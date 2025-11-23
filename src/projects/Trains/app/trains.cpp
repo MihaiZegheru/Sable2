@@ -19,6 +19,10 @@
 #include "projects/Trains/managers/map_manager.h"
 #include "projects/Trains/attributes/train.h"
 #include "projects/Trains/systems/train_system.h"
+#include "projects/Trains/attributes/bank.h"
+#include "projects/Trains/attributes/resource_generator.h"
+#include "projects/Trains/systems/bank_system.h"
+#include "projects/Trains/systems/resource_system.h"
 
 using namespace core;
 using namespace trains;
@@ -62,6 +66,8 @@ void RegisterAttributesAndSystems() {
 	ecs_manager.RegisterAttribute<core::attributes::StaticMesh>();
 	ecs_manager.RegisterAttribute<trains::attributes::Train>();
 	ecs_manager.RegisterAttribute<core::attributes::Follow>();
+	ecs_manager.RegisterAttribute<trains::attributes::Bank>();
+	ecs_manager.RegisterAttribute<trains::attributes::ResourceGenerator>();
 
 	core::ecs::ArchetypeSignature camera_signature;
 	camera_signature.set(0); // Transform
@@ -83,6 +89,16 @@ void RegisterAttributesAndSystems() {
 	follow_signature.set(0); // Transform
 	follow_signature.set(4); // Follow
 	ecs_manager.RegisterSystem<core::systems::FollowSystem>(follow_signature);
+
+	core::ecs::ArchetypeSignature bank_signature;
+	bank_signature.set(0); // Transform
+	bank_signature.set(5); // Bank
+	ecs_manager.RegisterSystem<trains::systems::BankSystem>(bank_signature);
+
+	core::ecs::ArchetypeSignature resource_signature;
+	resource_signature.set(0); // Transform
+	resource_signature.set(6); // ResourceGenerator
+	ecs_manager.RegisterSystem<trains::systems::ResourceSystem>(resource_signature);
 }
 
 int main() {
@@ -127,7 +143,7 @@ int main() {
     glClearColor(0.2, 0.2, 0.2, 1);
 
 
-	map_manager.GenerateMap(6);
+	map_manager.GenerateMap(10);
 	TileCoord starting_tile_coords = map_manager.GetStartingTile();
 
 	
@@ -149,30 +165,30 @@ int main() {
 	float first_wagon_distance = 12.0f;
 	float base_wagon_distance = 8.0f;
 
-	core::ecs::EntityID wagon_id = train.id;
-	for (int i = 0; i < 5; ++i) {
-		core::ecs::Entity new_wagon = ecs_manager.CreateEntity();
-		core::attributes::Transform new_wagon_transform;
-		new_wagon_transform.position = glm::vec3(0.0f, 7.0f, -15.0f * (i + 2));
-		new_wagon_transform.scale = glm::vec3(10.0f, 10.0f, 10.0f);
-		ecs_manager.AddAttribute<core::attributes::Transform>(new_wagon.id, new_wagon_transform);
-		core::attributes::StaticMesh new_wagon_mesh;
-		new_wagon_mesh.model_id = wagon_model_id;
-		ecs_manager.AddAttribute<core::attributes::StaticMesh>(new_wagon.id, new_wagon_mesh);
-		trains::attributes::Train new_wagon_attr;
-		new_wagon_attr.current_tile_coord = starting_tile_coords;
-		new_wagon_attr.next_tile_coord = starting_tile_coords;
-		new_wagon_attr.speed = 15.0f;
-		new_wagon_attr.front_wagon = wagon_id;
-		if (i == 0) {
-			new_wagon_attr.distance_to_front_wagon = first_wagon_distance;
-		} else {
-			new_wagon_attr.distance_to_front_wagon = base_wagon_distance;
-		}
-		ecs_manager.AddAttribute<trains::attributes::Train>(new_wagon.id, new_wagon_attr);
+	// core::ecs::EntityID wagon_id = train.id;
+	// for (int i = 0; i < 5; ++i) {
+	// 	core::ecs::Entity new_wagon = ecs_manager.CreateEntity();
+	// 	core::attributes::Transform new_wagon_transform;
+	// 	new_wagon_transform.position = glm::vec3(0.0f, 7.0f, -15.0f * (i + 2));
+	// 	new_wagon_transform.scale = glm::vec3(10.0f, 10.0f, 10.0f);
+	// 	ecs_manager.AddAttribute<core::attributes::Transform>(new_wagon.id, new_wagon_transform);
+	// 	core::attributes::StaticMesh new_wagon_mesh;
+	// 	new_wagon_mesh.model_id = wagon_model_id;
+	// 	ecs_manager.AddAttribute<core::attributes::StaticMesh>(new_wagon.id, new_wagon_mesh);
+	// 	trains::attributes::Train new_wagon_attr;
+	// 	new_wagon_attr.current_tile_coord = starting_tile_coords;
+	// 	new_wagon_attr.next_tile_coord = starting_tile_coords;
+	// 	new_wagon_attr.speed = 15.0f;
+	// 	new_wagon_attr.front_wagon = wagon_id;
+	// 	if (i == 0) {
+	// 		new_wagon_attr.distance_to_front_wagon = first_wagon_distance;
+	// 	} else {
+	// 		new_wagon_attr.distance_to_front_wagon = base_wagon_distance;
+	// 	}
+	// 	ecs_manager.AddAttribute<trains::attributes::Train>(new_wagon.id, new_wagon_attr);
 
-		wagon_id = new_wagon.id;
-	}
+	// 	wagon_id = new_wagon.id;
+	// }
 
 
 	core::ecs::Entity entity = ecs_manager.CreateEntity();
@@ -186,7 +202,7 @@ int main() {
 	std::cout << "Created camera entity with ID: " << entity.id << std::endl;
 	core::attributes::Follow follow;
 	follow.target_entity = train.id;
-	follow.offset = glm::vec3(0.0f, 50.0f, 80.0f);
+	follow.offset = glm::vec3(0.0f, 90.0f, 140.0f);
 	follow.match_rotation = true;
 	ecs_manager.AddAttribute<core::attributes::Follow>(entity.id, follow);
 
