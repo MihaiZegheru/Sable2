@@ -72,7 +72,7 @@ void TrainSystem::TickArchetype(core::ecs::Archetype& archetype, float delta_tim
 			core::attributes::Transform& front_wagon_transform = ecs_manager_.GetAttribute<core::attributes::Transform>(front_wagon_id);
 			core::attributes::Transform& transform = ecs_manager_.GetAttribute<core::attributes::Transform>(entity_id);
 			trains::attributes::Train& front_wagon_train = ecs_manager_.GetAttribute<trains::attributes::Train>(front_wagon_id);
-
+			
 			float distance_to_front = glm::length(front_wagon_transform.position - transform.position);
 
 			core::ecs::Entity& next_tile_entity = map_manager_.GetTileEntityAt(train.next_tile_coord);
@@ -83,6 +83,9 @@ void TrainSystem::TickArchetype(core::ecs::Archetype& archetype, float delta_tim
 
 			glm::vec2 direction = targetXZ - currentXZ;
 			float distance = glm::length(direction);
+
+			// not best but okay for now - to reduce speed when bumping into some other wagon
+			train.speed = front_wagon_train.speed;
 
 			if (!train.just_spawned) {
 				if (distance < 0.01f) {
@@ -116,6 +119,13 @@ void TrainSystem::TickArchetype(core::ecs::Archetype& archetype, float delta_tim
 				
 			}
 			train.checked_target = false;
+
+			// Move resource entity with offset
+			if (train.resource_entity != 0) {
+				core::attributes::Transform& resource_transform = ecs_manager_.GetAttribute<core::attributes::Transform>(train.resource_entity);
+				resource_transform.position = transform.position + train.resource_offset;
+				resource_transform.rotation = transform.rotation;
+			}
 
 			return;
 		}
@@ -153,6 +163,15 @@ void TrainSystem::TickArchetype(core::ecs::Archetype& archetype, float delta_tim
 				tail_train.disconnected = true;
 			}
 		}
+
+		// Handle acceleration and deceleration
+		float move_input = input_manager_.GetAxis("vertical");
+		if (move_input < 0) {
+			train.speed -= train.deceleration * delta_time;
+		} else if (move_input > 0) {
+			train.speed += train.acceleration * delta_time;
+		}
+		train.speed = glm::clamp(train.speed, 0.0f, train.max_speed);
 
 		core::attributes::Transform& transform = ecs_manager_.GetAttribute<core::attributes::Transform>(entity_id);
 
@@ -242,11 +261,22 @@ void TrainSystem::TickArchetype(core::ecs::Archetype& archetype, float delta_tim
 				} else {
 					new_wagon_attr.distance_to_front_wagon = base_wagon_distance;
 				}
-				ecs_manager_.AddAttribute<trains::attributes::Train>(new_wagon.id, new_wagon_attr);
+				
 				trains::attributes::BoxCollider new_wagon_collider;
-				new_wagon_collider.size = glm::vec3(10.0f, 10.0f, 20.0f);
+				new_wagon_collider.size = glm::vec3(10.0f, 10.0f, 10.0f);
 				ecs_manager_.AddAttribute<trains::attributes::BoxCollider>(new_wagon.id, new_wagon_collider);
 
+				core::ecs::Entity resource_entity = ecs_manager_.CreateEntity();
+				new_wagon_attr.resource_entity = resource_entity.id;
+				core::attributes::Transform resource_transform;
+				resource_transform.position = new_wagon_transform.position + train.resource_offset;
+				resource_transform.scale = glm::vec3(10.0f, 10.0f, 10.0f);
+				ecs_manager_.AddAttribute<core::attributes::Transform>(resource_entity.id, resource_transform);
+				core::attributes::StaticMesh resource_mesh;
+				resource_mesh.model_id = map_manager_.GetModelIdByResourceType(resource_type);
+				ecs_manager_.AddAttribute<core::attributes::StaticMesh>(resource_entity.id, resource_mesh);
+				
+				ecs_manager_.AddAttribute<trains::attributes::Train>(new_wagon.id, new_wagon_attr);
 				std::cout << "New wagon spawned with ID: " << new_wagon.id << " connected to front wagon ID: " << train.tail << std::endl;
 
 				train.tail = new_wagon.id;
@@ -271,8 +301,12 @@ void TrainSystem::TickArchetype(core::ecs::Archetype& archetype, float delta_tim
 			core::ecs::EntityID collided_entity_id = (collision.entityA == entity_id) ? collision.entityB : collision.entityA;
 			trains::attributes::Train& collided_train = ecs_manager_.GetAttribute<trains::attributes::Train>(collided_entity_id);
 			if (collided_train.disconnected) {
+				if (collided_train.resource_entity != 0) {
+					ecs_manager_.DestroyEntity(collided_train.resource_entity);
+				}
 				ecs_manager_.DestroyEntity(collided_entity_id);
 				collision_manager_.RemoveCollidable(collided_entity_id);
+				train.speed = 1.0f;
 				std::cout << "Deleted disconnected wagon with ID: " << collided_entity_id << " due to collision." << std::endl;
 			}
 		}

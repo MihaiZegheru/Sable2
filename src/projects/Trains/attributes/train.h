@@ -15,6 +15,9 @@ struct Train : public core::ecs::IAttribute {
 	TileCoord current_tile_coord;
 	TileCoord next_tile_coord;
 	float speed;
+	float acceleration;
+	float deceleration;
+	float max_speed;
 
 	uint8_t selected_track_index;
 	std::vector<TileCoord> track_selection_pool;
@@ -25,12 +28,17 @@ struct Train : public core::ecs::IAttribute {
 	core::ecs::EntityID tail;
 	float distance_to_front_wagon;
 	bool checked_target;
-
+	
+	core::ecs::EntityID resource_entity;
+	glm::vec3 resource_offset;
 	bool disconnected;
 
 	Train() : current_tile_coord{0, 0}, 
 			  next_tile_coord{0, 0},
 			  speed{0.0f},
+			  acceleration{4.0f},
+			  deceleration{7.0f},
+			  max_speed{30.0f},
 			  selected_track_index{0},
 			  track_selection_pool{},
 			  is_locomotive{false},
@@ -38,6 +46,8 @@ struct Train : public core::ecs::IAttribute {
 			  front_wagon{0},
 			  just_spawned{true},
 			  checked_target{false},
+			  resource_entity{0},
+			  resource_offset{0.0f, 3.0f, 1.0f},
 			  disconnected{true} {}
 };
 } // namespace trains::attributes

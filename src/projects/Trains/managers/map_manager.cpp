@@ -181,8 +181,7 @@ void MapManager::PlaceBuildings() {
 				// Place central bank
 				core::attributes::Transform building_transform;
 				building_transform.position = ecs_manager_.GetAttribute<core::attributes::Transform>(neighbor_entity.id).position;
-				building_transform.position.y += 5.0f;
-				building_transform.scale = glm::vec3(15.0f, 15.0f, 15.0f);
+				building_transform.scale = glm::vec3(10.0f, 10.0f, 10.0f);
 				ecs_manager_.AddAttribute<core::attributes::Transform>(central_bank_entity.id, building_transform);
 				
 				core::attributes::StaticMesh building_mesh;
@@ -586,5 +585,42 @@ void MapManager::LoadTileModels() {
 	} else {
 		std::cout << "Model not found!" << std::endl;
 	}
+
+	model_res = asset_loader_.GetModelByPath("Resources/stone/stone.obj");
+	if (model_res.has_value()) {
+		Model& model = *(model_res.value());
+		std::cout << "Model loaded with ID: " << model.id << std::endl;
+		asset_loader_.LoadModel(model);
+		renderer_.LoadModel(model);
+	} else {
+		std::cout << "Model not found!" << std::endl;
+	}
+
+	model_res = asset_loader_.GetModelByPath("Resources/wood/wood.obj");
+	if (model_res.has_value()) {
+		Model& model = *(model_res.value());
+		std::cout << "Model loaded with ID: " << model.id << std::endl;
+		asset_loader_.LoadModel(model);
+		renderer_.LoadModel(model);
+	} else {
+		std::cout << "Model not found!" << std::endl;
+	}
+
+	model_res = asset_loader_.GetModelByPath("Resources/gold/gold.obj");
+	if (model_res.has_value()) {
+		Model& model = *(model_res.value());
+		std::cout << "Model loaded with ID: " << model.id << std::endl;
+		asset_loader_.LoadModel(model);
+		renderer_.LoadModel(model);
+	} else {
+		std::cout << "Model not found!" << std::endl;
+	}
+
+	resource_models_ = {
+		{ ResourceType::kWood, asset_loader_.GetModelByPath("Resources/stone/stone.obj").value()->id },
+		{ ResourceType::kStone, asset_loader_.GetModelByPath("Resources/wood/wood.obj").value()->id },
+		{ ResourceType::kFood, asset_loader_.GetModelByPath("Resources/gold/gold.obj").value()->id },
+		{ ResourceType::kGold, asset_loader_.GetModelByPath("Resources/stone/stone.obj").value()->id }
+	};
 }
 } // namespace trains::managers

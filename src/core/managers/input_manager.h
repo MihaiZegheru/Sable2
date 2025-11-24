@@ -142,7 +142,7 @@ public:
         }
         if (axis == "vertical")
         {
-            return m_vertical;
+            return -m_vertical;
         }
     }
 
