@@ -162,8 +162,6 @@ int main() {
 	train_attr.is_locomotive = true;
 	ecs_manager.AddAttribute<trains::attributes::Train>(train.id, train_attr);
 
-	float first_wagon_distance = 12.0f;
-	float base_wagon_distance = 8.0f;
 
 	// core::ecs::EntityID wagon_id = train.id;
 	// for (int i = 0; i < 5; ++i) {

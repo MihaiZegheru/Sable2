@@ -44,7 +44,10 @@ size_t Archetype::AddEntity(EntityID entity_id) {
 	return index;
 }
 
+// TODO: Consider optimizing RemoveEntity's move.
+
 // Swaps with the last entity to maintain contiguity.
+// Moves the last entity's data into the removed entity's slot.
 void Archetype::RemoveEntity(EntityID entity_id) {
 	auto it = entity_to_index_.find(entity_id);
 	if (it == entity_to_index_.end()) {
@@ -55,6 +58,7 @@ void Archetype::RemoveEntity(EntityID entity_id) {
 	EntityID last_entity = entities_[entities_.size() - 1];
 	entities_[index] = last_entity;
 	entity_to_index_[last_entity] = index;
+	MoveEntityData(index, entities_.size() - 1);
 
 	entities_.pop_back();
 	entity_to_index_.erase(it);
@@ -93,5 +97,22 @@ void Archetype::SetAttribute(EntityID entity_id, AttributeType attribute_type,
 	size_t attribute_size = attribute_offsets_[attr_it->second + 1] -
 							attribute_offsets_[attr_it->second];
 	std::memcpy(&attr, &attribute, attribute_size);
+}
+
+void Archetype::MoveEntityData(size_t dest_index, size_t src_index) {
+	if (dest_index == src_index) return;
+
+	size_t dest_chunk_index = dest_index / entities_per_chunk_;
+	size_t dest_index_in_chunk = dest_index % entities_per_chunk_;
+	size_t src_chunk_index = src_index / entities_per_chunk_;
+	size_t src_index_in_chunk = src_index % entities_per_chunk_;
+
+	uint8_t* dest_chunk = chunks_[dest_chunk_index].get();
+	uint8_t* src_chunk = chunks_[src_chunk_index].get();
+
+	uint8_t* dest_ptr = dest_chunk + (dest_index_in_chunk * entity_stride_);
+	uint8_t* src_ptr = src_chunk + (src_index_in_chunk * entity_stride_);
+
+	std::memcpy(dest_ptr, src_ptr, entity_stride_);
 }
 } // namespace core::ecs
