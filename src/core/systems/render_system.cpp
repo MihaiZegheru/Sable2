@@ -35,7 +35,7 @@ void RenderSystem::TickArchetype(ecs::Archetype& archetype, float delta_time) {
 
 		// TODO: Remove hardcoded value
 
-		renderer.Draw({drawable}, managers::SceneManager::GetInstance().GetMainCamera());
+		renderer.Draw({drawable}, {}, managers::SceneManager::GetInstance().GetMainCamera());
 	});
 }
 } // namespace core::systems

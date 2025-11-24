@@ -15,6 +15,8 @@
 #include "core/systems/follow_system.h"
 #include "core/managers/scene_manager.h"
 #include "core/managers/input_manager.h"
+#include "core/render/renderer.h"
+#include "core/render/drawablelight.h"
 
 #include "projects/Trains/managers/map_manager.h"
 #include "projects/Trains/attributes/train.h"
@@ -219,6 +221,35 @@ int main() {
 	// follow locomotive
 	scene_manager.SetMainCamera(entity.id);
 
+	std::vector<core::render::DrawableLight> lights;
+
+	core::render::DrawableLight drawableLight;
+	float intensity = 0.55f;
+	float linearAttenuation = 0.000001f;
+	float quadraticAttenuation = 0.000001f;
+	glm::vec3 color = glm::vec3(1.0f, 1.0f, 0.95f);
+
+	drawableLight.position = glm::vec3(0.0f, 500.0f, 0.0f);
+	drawableLight.color = color;
+	drawableLight.intensity = intensity;
+	drawableLight.linearAttenuation = linearAttenuation;
+	drawableLight.quadraticAttenuation = quadraticAttenuation;
+	lights.push_back(drawableLight);
+	drawableLight.position = glm::vec3(600.0f, 200.0f, 0.0f);
+	lights.push_back(drawableLight);
+	drawableLight.position = glm::vec3(-600.0f, 200.0f, -0.0f);
+	lights.push_back(drawableLight);
+	drawableLight.position = glm::vec3(0.0f, 200.0f, 600.0f);
+	lights.push_back(drawableLight);
+	drawableLight.position = glm::vec3(0.0f, 200.0f, -600.0f);
+	lights.push_back(drawableLight);
+	// drawableLight.position = glm::vec3(0.0f, 200.0f, -400.0f);
+	// lights.push_back(drawableLight);
+
+
+
+
+
 
 	ecs_manager.StartSystems();
     Time::GetInstance().Init(glfwGetTime());
@@ -228,6 +259,11 @@ int main() {
 		collision_manager.ComputeCollisions();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		int truncatedLightsSize = std::min((int)lights.size(), (int)core::render::kMaxLightsCount);
+		glUniform1i(7, truncatedLightsSize);
+		glNamedBufferSubData(core::render::PointLightBuffer, 0, sizeof(core::render::DrawableLight) * truncatedLightsSize, lights.data());
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, core::render::PointLightBuffer);
 
 		ecs_manager.UpdateSystems(Time::GetInstance().GetDeltaTime());
 

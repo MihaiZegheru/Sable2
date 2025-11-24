@@ -9,7 +9,7 @@ struct PointLight
 {
     vec3 position;
     vec3 color;
-    float intenisty;
+    float intensity;
     float linearAttenuation;
     float quadraticAttenuation;
 };
@@ -29,22 +29,22 @@ layout (location = 4) in vec3 inBitangent;
 
 out vec4 fragColor; 
 
-float specularExponent = 8;
-vec3 specularReflectionColor = vec3(0.2f); 
-float ambientLightIntensity = 1.0f;
+float specularExponent = 5;
+vec3 specularReflectionColor = vec3(0.1f, 0.1f, 0.0f); 
+float ambientLightIntensity = 0.1f;
 
 vec3 GetNormal()
 {
-    if ((textureMask & (1 << 1)) == 0)
-    {
+    // if ((textureMask & (1 << 1)) == 0)
+    // {
         return normalize(inNormal);
-    }
-    else
-    {
-        vec3 normal = (texture(normalMap, inTextureCoords) * 2 - 1).xyz;
-        mat3 TBN = mat3(inTangent, inBitangent, inNormal);
-        return normalize(TBN * normal);
-    }
+    // }
+    // else
+    // {
+    //     vec3 normal = (texture(normalMap, inTextureCoords) * 2 - 1).xyz;
+    //     mat3 TBN = mat3(inTangent, inBitangent, inNormal);
+    //     return normalize(TBN * normal);
+    // }
 }
 
 vec3 GetDiffuseColor()
@@ -87,29 +87,18 @@ void main()
     vec3 diffuse = vec3(0);
     vec3 viewDirection = normalize(cameraPos - inFragPosition); 
 
+    for (int i = 0; i < lightsNum; i++)
+    {
+        lightPos = pointLights[i].position;
+        vec3 lightDirection = normalize(lightPos - inFragPosition); 
 
-    fragColor = vec4(ambient, 1); 
-	// fragColor = vec4(lightPos, 1);
-	// fragColor = vec4(pointLights[0].color, 1);
-	// fragColor = vec4(1.f * lightsNum, 1);
-    // fragColor = vec4(pointLights[0].color, 1); 
+        float dist = distance(lightPos, inFragPosition);
+        float attenuation = 1.f / (1.f + pointLights[i].linearAttenuation * dist + pointLights[i].quadraticAttenuation * dist * dist);
 
-    // ambient
-    // float ambientStrength = 0.1;
-    // vec3 ambient = ambientStrength * ambientLightColor;s
-  	
-    // // diffuse 
-    // vec3 lightDir = normalize(lightPos - inFragPosition);
-    // float diff = max(dot(normal, lightDir), 0.0);
-    // vec3 diffuse = diff * ambientLightColor;
-    
-    // // specular
-    // float specularStrength = 0.5;
-    // vec3 viewDir = normalize(- cameraPos + inFragPosition);
-    // vec3 reflectDir = reflect(-lightDir, normal);  
-    // float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    // vec3 specular = specularStrength * spec * ambientLightColor;  
-        
-    // vec3 result = (ambient + diffuse + specular) * diffuseColor;
-    // fragColor = vec4(result, 1.0);
+        specular += ComputeSpecularReflection(viewDirection, lightDirection, normal) * attenuation;
+        diffuse += ComputeDiffuseReflection(lightDirection, normal, pointLights[i].color, pointLights[i].intensity) * attenuation;
+    }
+    diffuse *= diffuseColor;
+
+    fragColor = vec4(ambient + specular + diffuse, 1); 
 }

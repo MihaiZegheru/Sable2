@@ -5,11 +5,16 @@
 #include <unordered_map>
 
 #include "drawable.h"
+#include "drawablelight.h"
 #include "render_model_data.h"
 #include "core/graphics/model.h"
 #include "core/ecs/entity.h"
 
 namespace core::render {
+
+constexpr size_t kMaxLightsCount = 16;
+extern GLuint PointLightBuffer;
+extern void* mappedLightBuffer;
 
 class Renderer {
 public:
@@ -22,11 +27,14 @@ public:
 	void UnloadModel(size_t model_id) { 
 		// TODO 
 	};
-	void Draw(const std::vector<Drawable>& drawables, ecs::EntityID active_camera_id);
+	void Draw(const std::vector<Drawable>& drawables,
+			  const std::vector <DrawableLight>& lights,
+			  ecs::EntityID active_camera_id);
 	
 private:
-	void InitShaders();
 	Renderer();
+	void InitShaders();
+	void InitBuffers();
 
 private:
 	std::unordered_map <size_t, RenderModelData> id_to_render_data_;

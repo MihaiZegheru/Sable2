@@ -19,6 +19,9 @@
 
 namespace core::render {
 
+GLuint PointLightBuffer = 0;
+void* mappedLightBuffer = nullptr;
+
 namespace {
 
 	RenderMeshData LoadMesh(const graphics::Mesh& mesh)
@@ -177,6 +180,7 @@ namespace {
 Renderer::Renderer() {
     InitShaders();
 	InitGL();
+	InitBuffers();
 }
 
 void Renderer::InitShaders() {
@@ -185,6 +189,13 @@ void Renderer::InitShaders() {
 	default_shader_program_ = CreateDefaultShaderProgram(fragmentShaderBuffer, vertexShaderBuffer);
 	glUseProgram(default_shader_program_);
 }
+
+void Renderer::InitBuffers() {
+    glCreateBuffers(1, &PointLightBuffer);
+    glNamedBufferStorage(PointLightBuffer, sizeof(DrawableLight) * kMaxLightsCount, nullptr, GL_DYNAMIC_STORAGE_BIT);
+    mappedLightBuffer = glMapNamedBuffer(PointLightBuffer, GL_WRITE_ONLY);
+}
+
 
 void Renderer::LoadModel(const graphics::Model& model)
 {
@@ -204,7 +215,15 @@ void Renderer::LoadModel(const graphics::Model& model)
     id_to_render_data_[model.id] = modelData;
 }
 
-void Renderer::Draw(const std::vector <Drawable>& drawables, ecs::EntityID active_camera_id) {
+void Renderer::Draw(const std::vector <Drawable>& drawables,
+					const std::vector <DrawableLight>& lights,
+					ecs::EntityID active_camera_id) {
+
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, PointLightBuffer);
+	if (lights.size() > kMaxLightsCount) {
+		std::cerr << "Warning: Exceeding maximum number of lights. Some lights will be ignored." << std::endl;
+	}
+
 	attributes::Camera& active_camera_attr = core::ecs::ECSManager::GetInstance().GetAttribute<attributes::Camera>(active_camera_id);
     glUniformMatrix4fv(1, 1, GL_FALSE, &active_camera_attr.view_matrix[0][0]);
     glUniformMatrix4fv(2, 1, GL_FALSE, &active_camera_attr.projection_matrix[0][0]);
