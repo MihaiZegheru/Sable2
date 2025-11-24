@@ -8,6 +8,7 @@
 
 #include "projects/Trains/attributes/train.h"
 #include "projects/Trains/managers/map_manager.h"
+#include "projects/Trains/managers/collision_manager.h"
 
 namespace trains::systems {
 
@@ -22,6 +23,7 @@ public:
 	core::ecs::ECSManager& ecs_manager_ = core::ecs::ECSManager::GetInstance();
 	trains::managers::MapManager& map_manager_ = trains::managers::MapManager::GetInstance();
 	core::managers::InputManager& input_manager_ = core::managers::InputManager::GetInstance();
+	trains::managers::CollisionManager& collision_manager_ = trains::managers::CollisionManager::GetInstance();
 };
 } // namespace trains::systems
 

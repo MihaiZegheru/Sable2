@@ -193,7 +193,7 @@ public:
 		throw std::runtime_error("Track entity not found for given Rail");
 	}
 
-	inline std::optional<trains::types::ResourceType> GetResourceTypeAt(const TileCoord& coord) const {
+	inline std::optional<core::ecs::EntityID> GetResourceEntityAt(const TileCoord& coord) const {
 		auto it = coords_to_resource_.find(coord);
 		if (it != coords_to_resource_.end()) {
 			return it->second;
@@ -239,7 +239,8 @@ private:
 	std::unordered_set<TileCoord, std::hash<TileCoord>> building_tiles_;
 
 	std::unordered_map<TileCoord, std::vector<TileCoord>, std::hash<TileCoord>> track_graph_;
-	std::unordered_map<TileCoord, ResourceType, std::hash<TileCoord>> coords_to_resource_;;
+	std::unordered_map<TileCoord, core::ecs::EntityID, std::hash<TileCoord>> coords_to_resource_;
+
 	TileCoord central_bank_coord_;
 
 	core::ecs::ECSManager& ecs_manager_ = core::ecs::ECSManager::GetInstance();

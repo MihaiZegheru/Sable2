@@ -204,7 +204,7 @@ void MapManager::PlaceBuildings() {
 				ResourceType res_type = static_cast<ResourceType>(index % kGatherPointModels.size());
 				core::attributes::StaticMesh building_mesh;
 				building_mesh.model_id = tile_models_[std::string(kGatherPointModels.at(res_type))];
-				coords_to_resource_[tile_coord] = res_type;
+				coords_to_resource_[tile_coord] = resource_entity.id;
 				ecs_manager_.AddAttribute<core::attributes::StaticMesh>(resource_entity.id, building_mesh);
 
 				trains::attributes::ResourceGenerator res_gen_attr;

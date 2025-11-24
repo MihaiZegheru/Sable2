@@ -41,6 +41,9 @@ public:
 	}
 	// Updates all registered systems.
 	void UpdateSystems(float delta_time) {
+		// Remove entities scheduled for destruction before updating systems.
+		ProcessEntityDestructions();
+
 		system_manager_.UpdateSystems(delta_time);
 	}
 
@@ -137,6 +140,8 @@ private:
 		return it->second;
 	}
 
+	void ProcessEntityDestructions();
+
 private:
 	ArchetypeManager archetype_manager_;
 	EntityManager entity_manager_;
@@ -147,6 +152,9 @@ private:
 
 	// Next available AttributeType identifier.
 	AttributeType next_attribute_type_ = 0;
+
+	// Temporary storage for entities to be destroyed after system updates.
+	std::vector<EntityID> entities_to_destroy_;
 };
 } // namespace core::ecs
 

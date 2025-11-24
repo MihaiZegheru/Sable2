@@ -45,6 +45,10 @@ public:
 	inline ArchetypeSignature GetSignature() const { return signature_; }
 
 private:
+	// Moves entity data from src_index to dest_index within the archetype.
+	void MoveEntityData(size_t dest_index, size_t src_index);
+
+private:
 	// Signature representing the set of attributes for this archetype.
 	ArchetypeSignature signature_;
 

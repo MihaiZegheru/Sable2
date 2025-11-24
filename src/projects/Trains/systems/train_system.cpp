@@ -9,6 +9,11 @@
 #include "core/graphics/model.h"
 
 #include "projects/Trains/attributes/train.h"
+#include "projects/Trains/attributes/resource_generator.h"
+#include "projects/Trains/attributes/bank.h"
+#include "projects/Trains/attributes/box_collider.h"
+#include "projects/Trains/managers/map_manager.h"
+#include "projects/Trains/managers/collision_manager.h"
 
 #include <iostream>
 
@@ -55,10 +60,14 @@ void TrainSystem::Tick(float delta_time) {
 }
 
 void TrainSystem::TickArchetype(core::ecs::Archetype& archetype, float delta_time) {
+	// std::cout << "Ticking Train Archetype with delta_time: " << delta_time << std::endl;
 	archetype.ForEach([this, delta_time, &archetype](core::ecs::EntityID entity_id, size_t index) {
+		// std::cout << "Ticking Train Entity ID: " << entity_id << std::endl;
 		trains::attributes::Train& train = ecs_manager_.GetAttribute<trains::attributes::Train>(entity_id);
-
 		if (!train.is_locomotive) {
+			if (train.disconnected) {
+				return;
+			}
 			core::ecs::EntityID front_wagon_id = train.front_wagon;
 			core::attributes::Transform& front_wagon_transform = ecs_manager_.GetAttribute<core::attributes::Transform>(front_wagon_id);
 			core::attributes::Transform& transform = ecs_manager_.GetAttribute<core::attributes::Transform>(entity_id);
@@ -135,6 +144,15 @@ void TrainSystem::TickArchetype(core::ecs::Archetype& archetype, float delta_tim
 			core::attributes::Transform& new_selected_track_transform = ecs_manager_.GetAttribute<core::attributes::Transform>(new_selected_rail);
 			new_selected_track_transform.scale = glm::vec3(13.0f, 13.0f, 13.0f);
 		}
+		if (input_manager_.GetKey("space")) {
+			// detahc tail wagon
+			if (train.tail != entity_id) {
+				trains::attributes::Train& tail_train = ecs_manager_.GetAttribute<trains::attributes::Train>(train.tail);
+				train.tail = tail_train.front_wagon;
+				tail_train.speed = 0.0f;
+				tail_train.disconnected = true;
+			}
+		}
 
 		core::attributes::Transform& transform = ecs_manager_.GetAttribute<core::attributes::Transform>(entity_id);
 
@@ -185,8 +203,9 @@ void TrainSystem::TickArchetype(core::ecs::Archetype& archetype, float delta_tim
 
 
 			// Handle resource pick-up
-			if (auto resource_type_opt = map_manager_.GetResourceTypeAt(train.current_tile_coord); resource_type_opt.has_value()) {
-				trains::types::ResourceType resource_type = resource_type_opt.value();
+			if (auto resource_entity_opt = map_manager_.GetResourceEntityAt(train.current_tile_coord); resource_entity_opt.has_value()) {
+				core::ecs::EntityID resource_entity_id = resource_entity_opt.value();
+				trains::types::ResourceType resource_type = ecs_manager_.GetAttribute<trains::attributes::ResourceGenerator>(resource_entity_id).resource_type;
 				std::cout << "Train picked up resource of type: " << static_cast<int>(resource_type) << " at tile (" 
 						  << train.current_tile_coord.q << ", " << train.current_tile_coord.r << ")" << std::endl;
 
@@ -217,12 +236,16 @@ void TrainSystem::TickArchetype(core::ecs::Archetype& archetype, float delta_tim
 				new_wagon_attr.speed = train.speed;
 				new_wagon_attr.just_spawned = true;
 				new_wagon_attr.front_wagon = train.tail;
+				new_wagon_attr.disconnected = false;
 				if (train.tail == entity_id) {
 					new_wagon_attr.distance_to_front_wagon = first_wagon_distance;
 				} else {
 					new_wagon_attr.distance_to_front_wagon = base_wagon_distance;
 				}
 				ecs_manager_.AddAttribute<trains::attributes::Train>(new_wagon.id, new_wagon_attr);
+				trains::attributes::BoxCollider new_wagon_collider;
+				new_wagon_collider.size = glm::vec3(10.0f, 10.0f, 20.0f);
+				ecs_manager_.AddAttribute<trains::attributes::BoxCollider>(new_wagon.id, new_wagon_collider);
 
 				std::cout << "New wagon spawned with ID: " << new_wagon.id << " connected to front wagon ID: " << train.tail << std::endl;
 
@@ -239,6 +262,19 @@ void TrainSystem::TickArchetype(core::ecs::Archetype& archetype, float delta_tim
 			}
 			transform.position.x += move.x;
 			transform.position.z += move.y;
+		}
+
+		std::unordered_set<types::Collision, std::hash<types::Collision>> collisions;
+		collision_manager_.GetCollisionsForEntity(entity_id, collisions);
+
+		for (const auto& collision : collisions) {
+			core::ecs::EntityID collided_entity_id = (collision.entityA == entity_id) ? collision.entityB : collision.entityA;
+			trains::attributes::Train& collided_train = ecs_manager_.GetAttribute<trains::attributes::Train>(collided_entity_id);
+			if (collided_train.disconnected) {
+				ecs_manager_.DestroyEntity(collided_entity_id);
+				collision_manager_.RemoveCollidable(collided_entity_id);
+				std::cout << "Deleted disconnected wagon with ID: " << collided_entity_id << " due to collision." << std::endl;
+			}
 		}
 	});
 }

@@ -113,8 +113,12 @@ public:
 
 		m_pressedD = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && !m_holdD;
 		m_pressedA = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && !m_holdA;
+
 		m_holdD = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
 		m_holdA = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
+
+		m_pressedSpace = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !m_holdSpace;
+		m_holdSpace = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
 
         double mouseX, mouseY;
         glfwGetCursorPos(window, &mouseX, &mouseY);
@@ -207,6 +211,10 @@ public:
 		{
 			return m_pressedA;
 		}
+		if (key == "space")
+		{
+			return m_pressedSpace;
+		}
     }
 
 private:
@@ -238,6 +246,8 @@ private:
 	bool m_holdD;
 	bool m_pressedA;
 	bool m_holdA;
+	bool m_pressedSpace;
+	bool m_holdSpace;
 
     glm::vec2 m_mousePosition;
 

@@ -26,6 +26,8 @@ struct Train : public core::ecs::IAttribute {
 	float distance_to_front_wagon;
 	bool checked_target;
 
+	bool disconnected;
+
 	Train() : current_tile_coord{0, 0}, 
 			  next_tile_coord{0, 0},
 			  speed{0.0f},
@@ -35,7 +37,8 @@ struct Train : public core::ecs::IAttribute {
 			  distance_to_front_wagon{5.0f},
 			  front_wagon{0},
 			  just_spawned{true},
-			  checked_target{false} {}
+			  checked_target{false},
+			  disconnected{true} {}
 };
 } // namespace trains::attributes
 

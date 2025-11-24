@@ -23,6 +23,8 @@
 #include "projects/Trains/attributes/resource_generator.h"
 #include "projects/Trains/systems/bank_system.h"
 #include "projects/Trains/systems/resource_system.h"
+#include "projects/Trains/attributes/box_collider.h"
+#include "projects/Trains/systems/collision_system.h"
 
 using namespace core;
 using namespace trains;
@@ -68,6 +70,7 @@ void RegisterAttributesAndSystems() {
 	ecs_manager.RegisterAttribute<core::attributes::Follow>();
 	ecs_manager.RegisterAttribute<trains::attributes::Bank>();
 	ecs_manager.RegisterAttribute<trains::attributes::ResourceGenerator>();
+	ecs_manager.RegisterAttribute<trains::attributes::BoxCollider>();
 
 	core::ecs::ArchetypeSignature camera_signature;
 	camera_signature.set(0); // Transform
@@ -99,6 +102,11 @@ void RegisterAttributesAndSystems() {
 	resource_signature.set(0); // Transform
 	resource_signature.set(6); // ResourceGenerator
 	ecs_manager.RegisterSystem<trains::systems::ResourceSystem>(resource_signature);
+
+	core::ecs::ArchetypeSignature collision_signature;
+	collision_signature.set(0); // Transform
+	collision_signature.set(7); // BoxCollider
+	ecs_manager.RegisterSystem<trains::systems::CollisionSystem>(collision_signature);
 }
 
 int main() {
@@ -109,6 +117,7 @@ int main() {
     core::managers::InputManager& inputManager = core::managers::InputManager::GetInstance();
 	trains::managers::MapManager& map_manager = trains::managers::MapManager::GetInstance();
 	core::managers::SceneManager& scene_manager = core::managers::SceneManager::GetInstance();
+	trains::managers::CollisionManager& collision_manager = trains::managers::CollisionManager::GetInstance();
 
 	core::assetloader::AssetLoaderManager& asset_loader_ = core::assetloader::AssetLoaderManager::GetInstance();
 	core::render::Renderer& renderer_ = core::render::Renderer::GetInstance();
@@ -161,6 +170,9 @@ int main() {
 	train_attr.speed = 15.0f;
 	train_attr.is_locomotive = true;
 	ecs_manager.AddAttribute<trains::attributes::Train>(train.id, train_attr);
+	trains::attributes::BoxCollider train_collider;
+	train_collider.size = glm::vec3(10.0f, 10.0f, 20.0f);
+	ecs_manager.AddAttribute<trains::attributes::BoxCollider>(train.id, train_collider);
 
 
 	// core::ecs::EntityID wagon_id = train.id;
@@ -213,10 +225,16 @@ int main() {
 	while (!glfwWindowShouldClose(window.GetInstance())) {
         Time::GetInstance().ComputeDeltaTime(glfwGetTime());
 		inputManager.Listen(window.GetInstance());
+		collision_manager.ComputeCollisions();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		ecs_manager.UpdateSystems(Time::GetInstance().GetDeltaTime());
+
+		// std::cout << "Frame rendered." << std::endl;
+
+		// Clear collisions after processing
+		collision_manager.ClearCollisions();
 
         glfwSwapBuffers(window.GetInstance());
         glfwPollEvents();

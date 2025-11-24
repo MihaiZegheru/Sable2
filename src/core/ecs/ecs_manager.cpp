@@ -17,9 +17,17 @@ Entity ECSManager::CreateEntity() {
 }
 
 void ECSManager::DestroyEntity(EntityID entity) {
-	archetype_manager_.RemoveEntity(entity);
-	entity_manager_.DestroyEntity(entity);
+	entities_to_destroy_.push_back(entity);
+}
+	
+void ECSManager::ProcessEntityDestructions() {
+	for (EntityID entity : entities_to_destroy_) {
+		archetype_manager_.RemoveEntity(entity);
+		entity_manager_.DestroyEntity(entity);
+	}
+	entities_to_destroy_.clear();
+}
 
 	// TODO: Might want to remove from systems as well.
-}
+
 } // namespace core::ecs
