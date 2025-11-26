@@ -4,23 +4,18 @@
 #include <glm/glm.hpp>
 
 #include "core/ecs/types.h"
+#include "renderable.h"
 
 namespace core::attributes {
 
-struct Camera : ecs::IAttribute {
-	float fov;
-	float near_plane;
-	float far_plane;
+struct Camera : IRenderable {
+	float fov = 45.0f;
+	float near_plane = 0.1f;
+	float far_plane = 1000.0f;
 
 	// TODO: look_at defaults to id 0, which may be actually be a valid entity.
 
-	ecs::EntityID look_at;
-
-	Camera()
-	    : fov(45.0f),
-	      near_plane(0.1f),
-	      far_plane(1000.0f),
-	      look_at(0) {}
+	ecs::EntityID look_at = 0;
 
 	glm::mat4 view_matrix;
 	glm::mat4 projection_matrix;

@@ -47,9 +47,13 @@ void RenderSystem::TickAllArchetypes(float delta_time) {
 			std::vector<render::Drawable> drawables;
 			for (auto& archetype_ref : renderable_archetypes) {
 				ecs::Archetype& archetype = archetype_ref.get();
-				archetype.ForEach([this, delta_time, &archetype, &drawables](ecs::EntityID entity_id, size_t index) {
+				archetype.ForEach([this, delta_time, &archetype, &drawables, &camera](ecs::EntityID entity_id, size_t index) {
 					attributes::Transform& transform = ecs_manager_.GetAttribute<attributes::Transform>(entity_id);
 					attributes::StaticMesh& static_mesh = ecs_manager_.GetAttribute<attributes::StaticMesh>(entity_id);
+
+					if ((static_mesh.culling_mask & camera.culling_mask) == 0) {
+						return;
+					}
 
 					render::Drawable drawable;
 					drawable.model_id = static_mesh.model_id;
@@ -61,9 +65,13 @@ void RenderSystem::TickAllArchetypes(float delta_time) {
 			std::vector<render::DrawableLight> lights;
 			for (auto& light_archetype_ref : light_archetypes) {
 				ecs::Archetype& light_archetype = light_archetype_ref.get();
-				light_archetype.ForEach([this, delta_time, &light_archetype, &lights](ecs::EntityID entity_id, size_t index) {
+				light_archetype.ForEach([this, delta_time, &light_archetype, &lights, &camera](ecs::EntityID entity_id, size_t index) {
 					attributes::Transform& transform = ecs_manager_.GetAttribute<attributes::Transform>(entity_id);
 					attributes::Light& light_attr = ecs_manager_.GetAttribute<attributes::Light>(entity_id);
+
+					if ((light_attr.culling_mask & camera.culling_mask) == 0) {
+						return;
+					}
 
 					render::DrawableLight drawable_light;
 					drawable_light.position = transform.position;
@@ -74,9 +82,6 @@ void RenderSystem::TickAllArchetypes(float delta_time) {
 					lights.push_back(drawable_light);
 				});
 			}
-
-			// TODO: Pass lights when available
-
 			renderer_.Draw(drawables, lights, camera_entity_id);
 		});
 	}

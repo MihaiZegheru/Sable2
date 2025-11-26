@@ -5,9 +5,11 @@
 
 #include "core/ecs/types.h"
 
+#include "renderable.h"
+
 namespace core::attributes {
 
-struct StaticMesh : ecs::IAttribute {
+struct StaticMesh : IRenderable {
 	uint16_t model_id;
 };
 } // namespace core::attributes

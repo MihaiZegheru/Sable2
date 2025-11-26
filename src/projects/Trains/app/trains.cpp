@@ -32,6 +32,8 @@
 using namespace core;
 using namespace trains;
 
+const uint32_t kGameCullingLayerDefault = 0x00000001;
+
 int WINDOW_WIDTH = 2000;
 int WINDOW_HEIGHT = 1200;
 
@@ -162,6 +164,7 @@ int main() {
 	ecs_manager.AddAttribute<core::attributes::Transform>(train.id, train_transform);
 	core::attributes::StaticMesh train_mesh;
 	train_mesh.model_id = model_id;
+	train_mesh.culling_mask = kGameCullingLayerDefault;
 	ecs_manager.AddAttribute<core::attributes::StaticMesh>(train.id, train_mesh);
 	trains::attributes::Train train_attr;
 	train_attr.current_tile_coord = starting_tile_coords;
@@ -180,6 +183,7 @@ int main() {
 	ecs_manager.AddAttribute<core::attributes::Transform>(entity.id, transform);
 	core::attributes::Camera camera;
 	camera.look_at = train.id;
+	camera.culling_mask = kGameCullingLayerDefault;
 	ecs_manager.AddAttribute<core::attributes::Camera>(entity.id, camera);
 	std::cout << "Created camera entity with ID: " << entity.id << std::endl;
 	core::attributes::Follow follow;
@@ -219,8 +223,6 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		ecs_manager.UpdateSystems(Time::GetInstance().GetDeltaTime());
-
-		// std::cout << "Frame rendered." << std::endl;
 
 		// Clear collisions after processing
 		collision_manager.ClearCollisions();

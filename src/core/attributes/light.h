@@ -3,9 +3,11 @@
 
 #include <glm/glm.hpp>
 
+#include "renderable.h"
+
 namespace core::attributes {
 
-struct Light : public core::ecs::IAttribute {
+struct Light : IRenderable {
 	glm::vec3 color = glm::vec3(1.0f);
 	float intensity = 1.0f;
 	float linear_attenuation = 0.0f;
