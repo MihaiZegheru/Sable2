@@ -10,15 +10,14 @@
 
 namespace trains::systems {
 
-class CollisionSystem : public core::ecs::System {
+class CollisionSystem : public core::ecs::ISystem {
 public:
 	void Start() override;
-	void StartArchetype(core::ecs::Archetype& archetype) override;
+	void StartAllArchetypes() override;
 	void Tick(float delta_time) override;
-	void TickArchetype(core::ecs::Archetype& archetype, float delta_time) override;
+	void TickAllArchetypes(float delta_time) override;
 
 private:
-	core::ecs::ECSManager& ecs_manager = core::ecs::ECSManager::GetInstance();
 	trains::managers::CollisionManager& collision_manager = trains::managers::CollisionManager::GetInstance();
 };
 } // namespace trains::systems

@@ -13,7 +13,7 @@ void CameraSystem::Start() {
 	// Initialization if needed
 }
 
-void CameraSystem::StartArchetype(ecs::Archetype& archetype) {
+void CameraSystem::StartAllArchetypes() {
 	// Initialization per archetype if needed
 }
 
@@ -21,24 +21,30 @@ void CameraSystem::Tick(float delta_time) {
 	// Tick
 }
 
-void CameraSystem::TickArchetype(ecs::Archetype& archetype, float delta_time) {
-	archetype.ForEach([this, delta_time, &archetype](ecs::EntityID entity_id, size_t index) {
-		attributes::Camera& camera = ecs_manager_.GetAttribute<attributes::Camera>(entity_id);
-		attributes::Transform& transform = ecs_manager_.GetAttribute<attributes::Transform>(entity_id);
+void CameraSystem::TickAllArchetypes(float delta_time) {
+	auto archetypes = archetype_manager_.QueryArchetypes(
+			ecs_manager_.GetSignatureFor<attributes::Camera,
+										 attributes::Transform>());
+	for (auto& archetype_ref : archetypes) {
+		ecs::Archetype& archetype = archetype_ref.get();
+		archetype.ForEach([this, delta_time, &archetype](ecs::EntityID entity_id, size_t index) {
+			attributes::Camera& camera = ecs_manager_.GetAttribute<attributes::Camera>(entity_id);
+			attributes::Transform& transform = ecs_manager_.GetAttribute<attributes::Transform>(entity_id);
 
-		// Update view matrix based on transform
-		if (camera.look_at != 0) {
-			attributes::Transform& target_transform = ecs_manager_.GetAttribute<attributes::Transform>(camera.look_at);
-			camera.view_matrix = glm::lookAt(transform.position, target_transform.position, glm::vec3(0.0f, 1.0f, 0.0f));
-		} else {
-			glm::mat4 translation = glm::translate(glm::mat4(1.0f), -transform.position);
-			glm::mat4 rotation = glm::yawPitchRoll(glm::radians(-transform.rotation.y), glm::radians(-transform.rotation.x), glm::radians(-transform.rotation.z));
-			camera.view_matrix = rotation * translation;
-		}
+			// Update view matrix based on transform
+			if (camera.look_at != 0) {
+				attributes::Transform& target_transform = ecs_manager_.GetAttribute<attributes::Transform>(camera.look_at);
+				camera.view_matrix = glm::lookAt(transform.position, target_transform.position, glm::vec3(0.0f, 1.0f, 0.0f));
+			} else {
+				glm::mat4 translation = glm::translate(glm::mat4(1.0f), -transform.position);
+				glm::mat4 rotation = glm::yawPitchRoll(glm::radians(-transform.rotation.y), glm::radians(-transform.rotation.x), glm::radians(-transform.rotation.z));
+				camera.view_matrix = rotation * translation;
+			}
 
-		// Update projection matrix based on FOV and aspect ratio (assuming 16:9 here)
-		float aspect_ratio = 16.0f / 9.0f;
-		camera.projection_matrix = glm::perspective(glm::radians(camera.fov), aspect_ratio, camera.near_plane, camera.far_plane);
-	});
+			// Update projection matrix based on FOV and aspect ratio (assuming 16:9 here)
+			float aspect_ratio = 16.0f / 9.0f;
+			camera.projection_matrix = glm::perspective(glm::radians(camera.fov), aspect_ratio, camera.near_plane, camera.far_plane);
+		});
+	}
 }
 } // namespace core::systems

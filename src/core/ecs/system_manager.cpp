@@ -30,21 +30,15 @@ void SystemManager::RebuildArchetypeCache(ArchetypeManager& archetype_manager) {
 
 void SystemManager::StartSystems() {
 	for (auto& [type, system] : systems_) {
-		auto& archetypes = system_archetypes_[type];
-		for (auto& archetype_ref : archetypes) {
-			System& sys = *system;
-			sys.StartArchetype(archetype_ref.get());
-		}
+		system->StartAllArchetypes();
 	}
 }
 
 void SystemManager::UpdateSystems(float delta_time) {
+	// TODO: Add system prioritization.
+
 	for (auto& [type, system] : systems_) {
-		auto& archetypes = system_archetypes_[type];
-		for (auto& archetype_ref : archetypes) {
-			System& sys = *system;
-			sys.TickArchetype(archetype_ref.get(), delta_time);
-		}
+		system->TickAllArchetypes(delta_time);
 	}
 }
 } // namespace core::ecs

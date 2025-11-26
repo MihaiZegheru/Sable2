@@ -11,7 +11,7 @@ void ResourceSystem::Start() {
 
 }
 
-void ResourceSystem::StartArchetype(core::ecs::Archetype& archetype) {
+void ResourceSystem::StartAllArchetypes() {
 
 }
 
@@ -19,18 +19,23 @@ void ResourceSystem::Tick(float delta_time) {
 
 }
 
-void ResourceSystem::TickArchetype(core::ecs::Archetype& archetype, float delta_time) {
-	archetype.ForEach([this, delta_time, &archetype](core::ecs::EntityID entity_id, size_t index) {
-		// trains::attributes::ResourceGenerator& resource_generator = ecs_manager_.GetAttribute<trains::attributes::ResourceGenerator>(entity_id);
+void ResourceSystem::TickAllArchetypes(float delta_time) {
+	auto archetypes = archetype_manager_.QueryArchetypes(
+			ecs_manager_.GetSignatureFor<trains::attributes::ResourceGenerator>());
+	for (auto& archetype_ref : archetypes) {
+		core::ecs::Archetype& archetype = archetype_ref.get();
+		archetype.ForEach([this, delta_time, &archetype](core::ecs::EntityID entity_id, size_t index) {
+			// trains::attributes::ResourceGenerator& resource_generator = ecs_manager_.GetAttribute<trains::attributes::ResourceGenerator>(entity_id);
 
-		// resource_generator.accumulated_time += delta_time;
-		// if (resource_generator.accumulated_time >= resource_generator.generation_rate && !resource_generator.has_resource) {
-		// 	resource_generator.has_resource = true;
-		// 	resource_generator.accumulated_time = 0.0f;
+			// resource_generator.accumulated_time += delta_time;
+			// if (resource_generator.accumulated_time >= resource_generator.generation_rate && !resource_generator.has_resource) {
+			// 	resource_generator.has_resource = true;
+			// 	resource_generator.accumulated_time = 0.0f;
 
-		// 	core::attributes::StaticMesh& display_mesh = ecs_manager_.GetAttribute<core::attributes::StaticMesh>(resource_generator.display_point);
-		// 	display_mesh.model_id = resource_generator.map_manager_.GetModelIdByResourceType(resource_generator.resource_type);
-		// }
-	});
+			// 	core::attributes::StaticMesh& display_mesh = ecs_manager_.GetAttribute<core::attributes::StaticMesh>(resource_generator.display_point);
+			// 	display_mesh.model_id = resource_generator.map_manager_.GetModelIdByResourceType(resource_generator.resource_type);
+			// }
+		});
+	}
 }
 } // namespace trains::systems

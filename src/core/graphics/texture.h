@@ -11,8 +11,6 @@ struct Texture {
 	int width;
 	int height;
 	int channels;
-
-	// TODO: IS this even used?
 	uint8_t* data;
 
 	GLuint gl_texture;

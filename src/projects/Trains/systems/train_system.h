@@ -12,15 +12,14 @@
 
 namespace trains::systems {
 
-class TrainSystem : public core::ecs::System {
+class TrainSystem : public core::ecs::ISystem {
 public:
 	void Start() override;
-	void StartArchetype(core::ecs::Archetype& archetype) override;
+	void StartAllArchetypes() override;
 	void Tick(float delta_time) override;
-	void TickArchetype(core::ecs::Archetype& archetype, float delta_time) override;
+	void TickAllArchetypes(float delta_time) override;
 
 public:
-	core::ecs::ECSManager& ecs_manager_ = core::ecs::ECSManager::GetInstance();
 	trains::managers::MapManager& map_manager_ = trains::managers::MapManager::GetInstance();
 	core::managers::InputManager& input_manager_ = core::managers::InputManager::GetInstance();
 	trains::managers::CollisionManager& collision_manager_ = trains::managers::CollisionManager::GetInstance();

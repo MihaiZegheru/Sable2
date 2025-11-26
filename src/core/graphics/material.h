@@ -12,6 +12,9 @@ struct Material {
 	Texture normal_map;
 	glm::vec4 base_color;
 	int texture_mask;
+	
+	std::string vertex_shader_path;
+	std::string fragment_shader_path;
 };
 } // namespace core::graphics
 

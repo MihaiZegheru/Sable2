@@ -132,14 +132,12 @@ void ArchetypeManager::SetAttribute(EntityID entity_id, AttributeType attribute_
 
 std::vector<std::reference_wrapper<Archetype>> ArchetypeManager::QueryArchetypes(
 		const ArchetypeSignature& signature) {
-
-	// TODO: Optimize by doing 2 binary searches on the sorted signatures, upper and lower bounds
-	// and keep the interval.
-
 	std::vector<std::reference_wrapper<Archetype>> archetypes;
 	archetypes.reserve(signature_to_archetypes_.size());
-	for (auto& [signature, archetype_ptr] : signature_to_archetypes_) {
-		archetypes.push_back(*archetype_ptr);
+	for (auto& [archetype_signature, archetype_ptr] : signature_to_archetypes_) {
+		if ((archetype_signature & signature) == signature) {
+			archetypes.push_back(*archetype_ptr);
+		}
 	}
 	return archetypes;
 }

@@ -4,6 +4,9 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include "core/graphics/shader_program.h"
+#include "core/managers/shader_manager.h"
+
 namespace core::render {
 
 struct RenderMaterialData {
@@ -11,6 +14,9 @@ struct RenderMaterialData {
 	GLuint normalMap;
 	glm::vec4 baseColor;
 	int textureMask;
+
+	graphics::ShaderProgram shader_program =
+		managers::ShaderManager::GetInstance().GetDefaultShaderProgram();
 };
 } // namespace core::render
 

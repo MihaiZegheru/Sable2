@@ -4,6 +4,7 @@
 #include "core/ecs/types.h"
 #include "core/attributes/transform.h"
 #include "core/attributes/camera.h"
+#include "core/attributes/light.h"
 #include "core/systems/camera_system.h"
 #include "core/systems/render_system.h"
 #include "core/render/renderer.h"
@@ -73,42 +74,38 @@ void RegisterAttributesAndSystems() {
 	ecs_manager.RegisterAttribute<trains::attributes::Bank>();
 	ecs_manager.RegisterAttribute<trains::attributes::ResourceGenerator>();
 	ecs_manager.RegisterAttribute<trains::attributes::BoxCollider>();
+	ecs_manager.RegisterAttribute<core::attributes::Light>();
 
-	core::ecs::ArchetypeSignature camera_signature;
-	camera_signature.set(0); // Transform
-	camera_signature.set(1); // Camera
-	ecs_manager.RegisterSystem<core::systems::CameraSystem>(camera_signature);
+	ecs_manager.RegisterSystem<core::systems::CameraSystem,
+							   core::attributes::Transform,
+							   core::attributes::Camera>();
 
-	core::ecs::ArchetypeSignature render_signature;
-	render_signature.set(0); // Transform
-	render_signature.set(2); // StaticMesh
-	ecs_manager.RegisterSystem<core::systems::RenderSystem>(render_signature);
+	ecs_manager.RegisterSystem<core::systems::RenderSystem,
+							   core::attributes::Transform,
+							   core::attributes::StaticMesh,
+							   core::attributes::Camera,
+							   core::attributes::Light>();
 
-	core::ecs::ArchetypeSignature train_signature;
-	train_signature.set(0); // Transform
-	train_signature.set(2); // StaticMesh
-	train_signature.set(3); // Train
-	ecs_manager.RegisterSystem<trains::systems::TrainSystem>(train_signature);
+	ecs_manager.RegisterSystem<trains::systems::TrainSystem,
+							   core::attributes::Transform,
+							   core::attributes::StaticMesh,
+							   trains::attributes::Train>();
 
-	core::ecs::ArchetypeSignature follow_signature;
-	follow_signature.set(0); // Transform
-	follow_signature.set(4); // Follow
-	ecs_manager.RegisterSystem<core::systems::FollowSystem>(follow_signature);
+	ecs_manager.RegisterSystem<core::systems::FollowSystem,
+							   core::attributes::Transform,
+							   core::attributes::Follow>();
+							   
+	ecs_manager.RegisterSystem<trains::systems::BankSystem,
+							   core::attributes::Transform,
+							   trains::attributes::Bank>();
 
-	core::ecs::ArchetypeSignature bank_signature;
-	bank_signature.set(0); // Transform
-	bank_signature.set(5); // Bank
-	ecs_manager.RegisterSystem<trains::systems::BankSystem>(bank_signature);
+	ecs_manager.RegisterSystem<trains::systems::ResourceSystem,
+							   core::attributes::Transform,
+							   trains::attributes::ResourceGenerator>();
 
-	core::ecs::ArchetypeSignature resource_signature;
-	resource_signature.set(0); // Transform
-	resource_signature.set(6); // ResourceGenerator
-	ecs_manager.RegisterSystem<trains::systems::ResourceSystem>(resource_signature);
-
-	core::ecs::ArchetypeSignature collision_signature;
-	collision_signature.set(0); // Transform
-	collision_signature.set(7); // BoxCollider
-	ecs_manager.RegisterSystem<trains::systems::CollisionSystem>(collision_signature);
+	ecs_manager.RegisterSystem<trains::systems::CollisionSystem,
+							   core::attributes::Transform,
+							   trains::attributes::BoxCollider>();
 }
 
 int main() {
@@ -176,33 +173,6 @@ int main() {
 	train_collider.size = glm::vec3(10.0f, 10.0f, 20.0f);
 	ecs_manager.AddAttribute<trains::attributes::BoxCollider>(train.id, train_collider);
 
-
-	// core::ecs::EntityID wagon_id = train.id;
-	// for (int i = 0; i < 5; ++i) {
-	// 	core::ecs::Entity new_wagon = ecs_manager.CreateEntity();
-	// 	core::attributes::Transform new_wagon_transform;
-	// 	new_wagon_transform.position = glm::vec3(0.0f, 7.0f, -15.0f * (i + 2));
-	// 	new_wagon_transform.scale = glm::vec3(10.0f, 10.0f, 10.0f);
-	// 	ecs_manager.AddAttribute<core::attributes::Transform>(new_wagon.id, new_wagon_transform);
-	// 	core::attributes::StaticMesh new_wagon_mesh;
-	// 	new_wagon_mesh.model_id = wagon_model_id;
-	// 	ecs_manager.AddAttribute<core::attributes::StaticMesh>(new_wagon.id, new_wagon_mesh);
-	// 	trains::attributes::Train new_wagon_attr;
-	// 	new_wagon_attr.current_tile_coord = starting_tile_coords;
-	// 	new_wagon_attr.next_tile_coord = starting_tile_coords;
-	// 	new_wagon_attr.speed = 15.0f;
-	// 	new_wagon_attr.front_wagon = wagon_id;
-	// 	if (i == 0) {
-	// 		new_wagon_attr.distance_to_front_wagon = first_wagon_distance;
-	// 	} else {
-	// 		new_wagon_attr.distance_to_front_wagon = base_wagon_distance;
-	// 	}
-	// 	ecs_manager.AddAttribute<trains::attributes::Train>(new_wagon.id, new_wagon_attr);
-
-	// 	wagon_id = new_wagon.id;
-	// }
-
-
 	core::ecs::Entity entity = ecs_manager.CreateEntity();
 	core::attributes::Transform transform;
 	transform.position = glm::vec3(0.0f, 700.0f, 0.0f);
@@ -218,38 +188,26 @@ int main() {
 	follow.match_rotation = true;
 	ecs_manager.AddAttribute<core::attributes::Follow>(entity.id, follow);
 
-	// follow locomotive
-	scene_manager.SetMainCamera(entity.id);
-
-	std::vector<core::render::DrawableLight> lights;
-
-	core::render::DrawableLight drawableLight;
-	float intensity = 0.55f;
-	float linearAttenuation = 0.000001f;
-	float quadraticAttenuation = 0.000001f;
-	glm::vec3 color = glm::vec3(1.0f, 1.0f, 0.95f);
-
-	drawableLight.position = glm::vec3(0.0f, 500.0f, 0.0f);
-	drawableLight.color = color;
-	drawableLight.intensity = intensity;
-	drawableLight.linearAttenuation = linearAttenuation;
-	drawableLight.quadraticAttenuation = quadraticAttenuation;
-	lights.push_back(drawableLight);
-	drawableLight.position = glm::vec3(600.0f, 200.0f, 0.0f);
-	lights.push_back(drawableLight);
-	drawableLight.position = glm::vec3(-600.0f, 200.0f, -0.0f);
-	lights.push_back(drawableLight);
-	drawableLight.position = glm::vec3(0.0f, 200.0f, 600.0f);
-	lights.push_back(drawableLight);
-	drawableLight.position = glm::vec3(0.0f, 200.0f, -600.0f);
-	lights.push_back(drawableLight);
-	// drawableLight.position = glm::vec3(0.0f, 200.0f, -400.0f);
-	// lights.push_back(drawableLight);
-
-
-
-
-
+	size_t num_lights = 5;
+	std::vector<glm::vec3> light_positions = {
+		glm::vec3(0.0f, 500.0f, 0.0f),
+		glm::vec3(600.0f, 200.0f, 0.0f),
+		glm::vec3(-600.0f, 200.0f, 0.0f),
+		glm::vec3(0.0f, 200.0f, 600.0f),
+		glm::vec3(0.0f, 200.0f, -600.0f)
+	};
+	for (int i = 0; i < num_lights; ++i) {
+		core::ecs::Entity light_entity = ecs_manager.CreateEntity();
+		core::attributes::Transform light_transform;
+		light_transform.position = light_positions[i];
+		ecs_manager.AddAttribute<core::attributes::Transform>(light_entity.id, light_transform);
+		core::attributes::Light light_attr;
+		light_attr.color = glm::vec3(1.0f, 1.0f, 0.95f);
+		light_attr.intensity = 0.55f;
+		light_attr.linear_attenuation = 0.000001f;
+		light_attr.quadratic_attenuation = 0.000001f;
+		ecs_manager.AddAttribute<core::attributes::Light>(light_entity.id, light_attr);
+	}
 
 	ecs_manager.StartSystems();
     Time::GetInstance().Init(glfwGetTime());
@@ -259,11 +217,6 @@ int main() {
 		collision_manager.ComputeCollisions();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		int truncatedLightsSize = std::min((int)lights.size(), (int)core::render::kMaxLightsCount);
-		glUniform1i(7, truncatedLightsSize);
-		glNamedBufferSubData(core::render::PointLightBuffer, 0, sizeof(core::render::DrawableLight) * truncatedLightsSize, lights.data());
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, core::render::PointLightBuffer);
 
 		ecs_manager.UpdateSystems(Time::GetInstance().GetDeltaTime());
 

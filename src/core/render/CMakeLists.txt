@@ -8,4 +8,5 @@ target_link_libraries(render PUBLIC
 	glm
 	glad
 	graphics
+	managers
 )

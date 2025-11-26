@@ -1,10 +1,10 @@
 #include "system.h"
 
-namespace core::ecs {
+#include "ecs_manager.h"
 
-void System::TickArchetype(Archetype& archetype, float delta_time) {
-	// archetype.ForEach([this, delta_time](EntityID entity_id, size_t index) {
-	// 	this->Tick(delta_time);
-	// });
-}
+namespace core::ecs {
+	
+ISystem::ISystem()
+	: ecs_manager_(ECSManager::GetInstance()),
+	  archetype_manager_(ecs_manager_.GetArchetypeManager()) {}
 } // namespace core::ecs

@@ -18,13 +18,13 @@ public:
 	explicit SystemManager() = default;
 
 	// Registers a system of type T with the given archetype signature.
-	// T must be derived from System.
-	template <typename T, typename = std::enable_if_t<std::is_base_of_v<System, T>>>
+	// T must be derived from ISystem.
+	template <typename T, typename = std::enable_if_t<std::is_base_of_v<ISystem, T>>>
 	void RegisterSystem(ArchetypeSignature& signature) {
 		std::type_index type(typeid(T));
 
 		assert(system_signatures_.find(type) == system_signatures_.end() &&
-			   "System type already registered.");
+			   "ISystem type already registered.");
 
 		auto system = std::make_unique<T>();
 		systems_.insert({type, std::move(system)});
@@ -45,7 +45,7 @@ public:
 
 private:
 	// Maps system type to its instance. Stored as unique_ptr to manage lifetime.
-	std::unordered_map<std::type_index, std::unique_ptr<System>> systems_;
+	std::unordered_map<std::type_index, std::unique_ptr<ISystem>> systems_;
 	// Maps system type to its required archetype signature.
 	std::unordered_map<std::type_index, ArchetypeSignature> system_signatures_;
     // Cache archetypes for each system for quick access during updates

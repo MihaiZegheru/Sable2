@@ -7,15 +7,12 @@
 
 namespace core::systems {
 
-class CameraSystem : public ecs::System {
+class CameraSystem : public ecs::ISystem {
 public:
 	void Start() override;
-	void StartArchetype(ecs::Archetype& archetype) override;
+	void StartAllArchetypes() override;
 	void Tick(float delta_time) override;
-	void TickArchetype(ecs::Archetype& archetype, float delta_time) override;
-
-private:
-	ecs::ECSManager& ecs_manager_ = ecs::ECSManager::GetInstance();
+	void TickAllArchetypes(float delta_time) override;
 };
 } // namespace core::systems
 

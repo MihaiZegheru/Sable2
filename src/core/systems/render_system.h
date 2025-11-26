@@ -4,18 +4,19 @@
 #include "core/ecs/archetype.h"
 #include "core/ecs/ecs_manager.h"
 #include "core/ecs/system.h"
+#include "core/render/renderer.h"
 
 namespace core::systems {
 
-class RenderSystem : public ecs::System {
+class RenderSystem : public ecs::ISystem {
 public:
 	void Start() override;
-	void StartArchetype(ecs::Archetype& archetype) override;
+	void StartAllArchetypes() override;
 	void Tick(float delta_time) override;
-	void TickArchetype(ecs::Archetype& archetype, float delta_time) override;
+	void TickAllArchetypes(float delta_time) override;
 
 private:
-	ecs::ECSManager& ecs_manager_ = ecs::ECSManager::GetInstance();
+	render::Renderer& renderer_ = render::Renderer::GetInstance();
 };
 } // namespace core::systems
 

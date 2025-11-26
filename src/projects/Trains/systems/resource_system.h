@@ -7,15 +7,12 @@
 
 namespace trains::systems {
 
-class ResourceSystem : public core::ecs::System {
+class ResourceSystem : public core::ecs::ISystem {
 public:
 	void Start() override;
-	void StartArchetype(core::ecs::Archetype& archetype) override;
+	void StartAllArchetypes() override;
 	void Tick(float delta_time) override;
-	void TickArchetype(core::ecs::Archetype& archetype, float delta_time) override;
-
-private:
-	core::ecs::ECSManager& ecs_manager_ = core::ecs::ECSManager::GetInstance();
+	void TickAllArchetypes(float delta_time) override;
 };
 } // namespace trains::systems
 

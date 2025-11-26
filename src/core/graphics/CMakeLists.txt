@@ -7,4 +7,5 @@ target_include_directories(graphics INTERFACE
 target_link_libraries(graphics INTERFACE
 	glad
 	glm
+	glfw
 )

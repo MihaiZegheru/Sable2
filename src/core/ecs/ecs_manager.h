@@ -31,10 +31,25 @@ public:
 
 	// Registers a system of type T with the given archetype signature.
 	// T must be derived from System.
-	template <typename T, typename = std::enable_if_t<std::is_base_of_v<System, T>>>
-	void RegisterSystem(ArchetypeSignature& signature) {
+	template <typename T, typename... Attributes>
+    	requires std::is_base_of_v<ISystem, T>
+	void RegisterSystem() {
+		ArchetypeSignature signature;
+		((signature.set(GetAttributeType<Attributes>())), ...);
+
 		system_manager_.RegisterSystem<T>(signature);
 	}
+
+	// Generates an archetype signature for the given attribute types.
+	template <typename... Attributes>
+		requires (std::is_base_of_v<IAttribute, Attributes> && ...)
+	ArchetypeSignature GetSignatureFor() {
+		ArchetypeSignature signature;
+		((signature.set(GetAttributeType<Attributes>())), ...);
+		return signature;
+	}
+
+
 	// Calls the Start function for all registered systems.
 	void StartSystems() {
 		system_manager_.StartSystems();
@@ -43,7 +58,6 @@ public:
 	void UpdateSystems(float delta_time) {
 		// Remove entities scheduled for destruction before updating systems.
 		ProcessEntityDestructions();
-
 		system_manager_.UpdateSystems(delta_time);
 	}
 

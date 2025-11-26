@@ -1,6 +1,7 @@
 add_library(train_managers STATIC
 	map_manager.cpp
 	collision_manager.cpp
+	minimap_manager.cpp
 )
 
 target_include_directories(train_managers PUBLIC ${CMAKE_SOURCE_DIR}/src)

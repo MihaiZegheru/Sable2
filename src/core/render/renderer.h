@@ -29,7 +29,7 @@ public:
 	};
 	void Draw(const std::vector<Drawable>& drawables,
 			  const std::vector <DrawableLight>& lights,
-			  ecs::EntityID active_camera_id);
+			  ecs::EntityID camera_id);
 	
 private:
 	Renderer();
@@ -38,9 +38,9 @@ private:
 
 private:
 	std::unordered_map <size_t, RenderModelData> id_to_render_data_;
-
 	
 	GLuint default_shader_program_;
+	GLuint minimap_shader_program_;
 };
 } // namespace core::render
 

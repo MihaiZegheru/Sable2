@@ -4,6 +4,7 @@ add_library(ecs STATIC
 	entity_manager.cpp
 	ecs_manager.cpp
 	system_manager.cpp
+	system.cpp
 )
 
 target_include_directories(ecs PUBLIC ${CMAKE_SOURCE_DIR}/src)
