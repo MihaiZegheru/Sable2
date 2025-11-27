@@ -87,6 +87,7 @@ void ShaderManager::ParseShaderFolder(const std::string& folder_path) {
 		} else {
 			continue;
 		}
+		std::cout << "Loaded shader: " << file_path_str << " with ID: " << shader_id << std::endl;
 		path_to_shader_id_[file_path_str] = shader_id;
 	}
 }
@@ -108,11 +109,12 @@ ShaderManager::ShaderManager() {
 }
 
 ShaderProgramID ShaderManager::CreateShaderProgram(ShaderID vertex_shader_id,
-													ShaderID fragment_shader_id) {
+												   ShaderID fragment_shader_id) {
 	GLuint shader_program = glCreateProgram();
 	glAttachShader(shader_program, vertex_shader_id);
 	glAttachShader(shader_program, fragment_shader_id);
 	glLinkProgram(shader_program);
+	
 
 	int successStatus;
 	glGetProgramiv(shader_program, GL_LINK_STATUS, &successStatus);

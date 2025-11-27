@@ -14,6 +14,7 @@ struct Texture {
 	uint8_t* data;
 
 	GLuint gl_texture;
+	bool gpu_uploaded = false;
 };
 } // namespace core::graphics
 

@@ -3,6 +3,10 @@
 
 #include <string>
 #include <unordered_map>
+#include <optional>
+#include <iostream>
+
+#include <glad/glad.h>
 
 #include "core/graphics/shader_program.h"
 
@@ -18,12 +22,23 @@ public:
 		return instance;
 	}
 
+	// TODO: Change in GetOrCreateShaderProgram for caching
+
 	// Creates a shader program from the given vertex and fragment shader IDs.
 	ShaderProgramID CreateShaderProgram(ShaderID vertex_shader_id,
 										ShaderID fragment_shader_id);
 
 	inline graphics::ShaderProgram GetDefaultShaderProgram() const {
 		return default_shader_program_;
+	}
+
+	inline std::optional<ShaderID> GetShaderFromPath(const std::string& path) const {
+		const std::string absolute_file_path = std::string(ABSOLUTE_SHADER_DIR) + "/" + path;
+		auto it = path_to_shader_id_.find(absolute_file_path);
+		if (it != path_to_shader_id_.end()) {
+			return it->second;
+		}
+		return std::nullopt;
 	}
 
 private:

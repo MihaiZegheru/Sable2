@@ -9,6 +9,7 @@
 #include "render_model_data.h"
 #include "core/graphics/model.h"
 #include "core/ecs/entity.h"
+#include "core/managers/shader_manager.h"
 
 namespace core::render {
 
@@ -38,9 +39,9 @@ private:
 
 private:
 	std::unordered_map <size_t, RenderModelData> id_to_render_data_;
-	
-	GLuint default_shader_program_;
-	GLuint minimap_shader_program_;
+
+	managers::ShaderManager& shader_manager_ = 
+		managers::ShaderManager::GetInstance();
 };
 } // namespace core::render
 

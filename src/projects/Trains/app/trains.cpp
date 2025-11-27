@@ -18,6 +18,10 @@
 #include "core/managers/input_manager.h"
 #include "core/render/renderer.h"
 #include "core/render/drawablelight.h"
+#include "core/graphics/mesh.h"
+#include "core/graphics/model.h"
+#include "core/graphics/texture.h"
+#include "core/graphics/material.h"
 
 #include "projects/Trains/managers/map_manager.h"
 #include "projects/Trains/attributes/train.h"
@@ -33,6 +37,8 @@ using namespace core;
 using namespace trains;
 
 const uint32_t kGameCullingLayerDefault = 0x00000001;
+const uint32_t kGameCullingLayerMinimap = 0x00000002;
+const uint32_t kGameCullingLayerUI = 0x00000004;
 
 int WINDOW_WIDTH = 2000;
 int WINDOW_HEIGHT = 1200;
@@ -49,13 +55,19 @@ graphics::Mesh CreateSquare(float size, glm::vec3 origin) {
 	float halfSize = size / 2.0f;
 	glm::vec2 offset(0.0f, 0.0f);
 	glm::vec3 adjustedOrigin = origin + glm::vec3(offset.x, offset.y, 0.0f);
+squareMesh.vertices = {
+    { glm::vec4(adjustedOrigin.x - halfSize, adjustedOrigin.y - halfSize, adjustedOrigin.z, 1.0f),
+      glm::vec4(1,0,0,0), glm::vec4(0,0,1,0), glm::vec2(0.0f, 0.0f) },
 
-	squareMesh.vertices = {
-		{ glm::vec4(adjustedOrigin.x - halfSize, adjustedOrigin.y - halfSize, adjustedOrigin.z, 1.0f), glm::vec4(1, 0, 0, 0), glm::vec4(0, 0, 1, 0), glm::vec2(0.0f, 0.0f) },
-		{ glm::vec4(adjustedOrigin.x + halfSize, adjustedOrigin.y - halfSize, adjustedOrigin.z, 1.0f), glm::vec4(1, 0, 0, 0), glm::vec4(0, 0, 1, 0), glm::vec2(1.0f, 0.0f) },
-		{ glm::vec4(adjustedOrigin.x + halfSize, adjustedOrigin.y + halfSize, adjustedOrigin.z, 1.0f), glm::vec4(1, 0, 0, 0), glm::vec4(0, 0, 1, 0), glm::vec2(1.0f, 1.0f) },
-		{ glm::vec4(adjustedOrigin.x - halfSize, adjustedOrigin.y + halfSize, adjustedOrigin.z, 1.0f), glm::vec4(1, 0, 0, 0), glm::vec4(0, 0, 1, 0), glm::vec2(0.0f, 1.0f) }
-	};
+    { glm::vec4(adjustedOrigin.x + halfSize, adjustedOrigin.y - halfSize, adjustedOrigin.z, 1.0f),
+      glm::vec4(1,0,0,0), glm::vec4(0,0,1,0), glm::vec2(1.0f, 0.0f) },
+
+    { glm::vec4(adjustedOrigin.x + halfSize, adjustedOrigin.y + halfSize, adjustedOrigin.z, 1.0f),
+      glm::vec4(1,0,0,0), glm::vec4(0,0,1,0), glm::vec2(1.0f, 1.0f) },
+
+    { glm::vec4(adjustedOrigin.x - halfSize, adjustedOrigin.y + halfSize, adjustedOrigin.z, 1.0f),
+      glm::vec4(1,0,0,0), glm::vec4(0,0,1,0), glm::vec2(0.0f, 1.0f) }
+};
 	squareMesh.vertices_count = squareMesh.vertices.size();
 	squareMesh.faces_count = 1;
 
@@ -147,6 +159,7 @@ int main() {
 	}
 
 	core::ecs::ECSManager& ecs_manager = core::ecs::ECSManager::GetInstance();
+	core::managers::ShaderManager& shader_manager = core::managers::ShaderManager::GetInstance();
 
 	glfwSetFramebufferSizeCallback(window.GetInstance(), OnWindowResize);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -183,12 +196,15 @@ int main() {
 	ecs_manager.AddAttribute<core::attributes::Transform>(entity.id, transform);
 	core::attributes::Camera camera;
 	camera.look_at = train.id;
+	camera.width = WINDOW_WIDTH;
+	camera.height = WINDOW_HEIGHT;
 	camera.culling_mask = kGameCullingLayerDefault;
+	camera.type = core::attributes::CameraType::kPerspective;
 	ecs_manager.AddAttribute<core::attributes::Camera>(entity.id, camera);
 	std::cout << "Created camera entity with ID: " << entity.id << std::endl;
 	core::attributes::Follow follow;
 	follow.target_entity = train.id;
-	follow.offset = glm::vec3(0.0f, 90.0f, 140.0f);
+	follow.offset = glm::vec3(0.0f, 60.0f, 100.0f);
 	follow.match_rotation = true;
 	ecs_manager.AddAttribute<core::attributes::Follow>(entity.id, follow);
 
@@ -213,14 +229,125 @@ int main() {
 		ecs_manager.AddAttribute<core::attributes::Light>(light_entity.id, light_attr);
 	}
 
+	core::ecs::Entity minimap_camera = ecs_manager.CreateEntity();
+
+	core::attributes::Transform transform2;
+	transform2.position = glm::vec3(0.0f, 700.0f, 0.0f);
+	transform2.rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
+	core::attributes::Camera camera2;
+	camera2.width = 256;
+	camera2.height = 256;
+	camera2.culling_mask = kGameCullingLayerDefault;
+	camera2.type = core::attributes::CameraType::kOrthographic;
+	camera2.ortho_size = 10.0f;
+	camera2.ortho_width = 256.0f;
+	camera2.ortho_height = 256.0f;
+	
+	core::attributes::Follow follow2;
+	follow2.target_entity = train.id;
+	follow2.offset = glm::vec3(0.0f, 600.0f, 0.0f);
+
+	GLuint fbo = 0, tex = 0, depth = 0;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+	const int TEX_WIDTH = 1024;
+
+	// color texture
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+	// set texture params
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	// attach
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
+
+	// depth renderbuffer
+	glGenRenderbuffers(1, &depth);
+	glBindRenderbuffer(GL_RENDERBUFFER, depth);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 256, 256);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth);
+
+	// explicitly tell GL which color attachments we'll draw into
+	GLenum drawbufs[1] = {GL_COLOR_ATTACHMENT0};
+	glDrawBuffers(1, drawbufs);
+
+	// check completeness
+	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (status != GL_FRAMEBUFFER_COMPLETE) {
+		std::cerr << "Minimap FBO not complete: 0x" << std::hex << status << std::dec << std::endl;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	camera2.fbo = fbo;
+	camera2.color = tex;
+	camera2.depth = depth;
+	camera2.scope = core::attributes::CameraScope::kTexture;
+	ecs_manager.AddAttribute<core::attributes::Camera>(minimap_camera.id, camera2);
+	ecs_manager.AddAttribute<core::attributes::Transform>(minimap_camera.id, transform2);
+	ecs_manager.AddAttribute<core::attributes::Follow>(minimap_camera.id, follow2);
+
+
+
+	core::graphics::Mesh minimap_mesh = CreateSquare(256.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+	core::graphics::Texture minimap_texture;
+	minimap_texture.width = 256;
+	minimap_texture.height = 256;
+	minimap_texture.gpu_uploaded = true;
+	minimap_texture.gl_texture = tex;
+	core::graphics::Material minimap_material;
+	minimap_material.base_color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+	minimap_material.texture_mask = 1 << 0;
+	minimap_material.diffuse_texture = minimap_texture;
+	minimap_material.vertex_shader = shader_manager.GetShaderFromPath("minimap/minimap.vert").value();
+	minimap_material.fragment_shader = shader_manager.GetShaderFromPath("minimap/minimap.frag").value();
+	core::graphics::Model minimap_model;
+	minimap_model.id = 100;
+	minimap_model.meshes.push_back(minimap_mesh);
+	minimap_model.materials.push_back(minimap_material);
+	minimap_model.mesh_instances.push_back({0, 0, glm::mat4(1.0f)});
+	renderer_.LoadModel(minimap_model);
+
+	core::ecs::Entity minimap_entity = ecs_manager.CreateEntity();
+	core::attributes::Transform minimap_entity_transform;
+	minimap_entity_transform.position = glm::vec3(256.0f, 256.0f, 0.0f);
+	minimap_entity_transform.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+	ecs_manager.AddAttribute<core::attributes::Transform>(minimap_entity.id, minimap_entity_transform);
+	core::attributes::StaticMesh minimap_entity_mesh;
+	minimap_entity_mesh.model_id = minimap_model.id;
+	minimap_entity_mesh.culling_mask = kGameCullingLayerUI;
+	ecs_manager.AddAttribute<core::attributes::StaticMesh>(minimap_entity.id, minimap_entity_mesh);
+
+
+	core::ecs::Entity ui_camera = ecs_manager.CreateEntity();
+	core::attributes::Transform transform_ui;
+	transform_ui.position = glm::vec3(0.0f, 0.0f, 100.0f);
+	transform_ui.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	ecs_manager.AddAttribute<core::attributes::Transform>(ui_camera.id, transform_ui);
+	core::attributes::Camera camera_ui;
+	camera_ui.width = WINDOW_WIDTH;
+	camera_ui.height = WINDOW_HEIGHT;
+	camera_ui.scope = core::attributes::CameraScope::kUI;
+	camera_ui.culling_mask = kGameCullingLayerUI;
+	camera_ui.type = core::attributes::CameraType::kOrthographic;
+	camera_ui.ortho_size = 1.0f;
+	camera_ui.ortho_width = WINDOW_WIDTH;
+	camera_ui.ortho_height = WINDOW_HEIGHT;
+	ecs_manager.AddAttribute<core::attributes::Camera>(ui_camera.id, camera_ui);
+
 	ecs_manager.StartSystems();
     Time::GetInstance().Init(glfwGetTime());
 	while (!glfwWindowShouldClose(window.GetInstance())) {
         Time::GetInstance().ComputeDeltaTime(glfwGetTime());
 		inputManager.Listen(window.GetInstance());
 		collision_manager.ComputeCollisions();
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		ecs_manager.UpdateSystems(Time::GetInstance().GetDeltaTime());
 

@@ -92,12 +92,13 @@ namespace {
 
 	GLuint LoadTexture(const graphics::Texture& texture)
 	{
-		if (texture.channels == 3)
-		{
+		if (texture.gpu_uploaded) {
+			return texture.gl_texture;
+		}
+		if (texture.channels == 3) {
 			return CreateGLTexture(texture, GL_RGB, GL_RGBA8);
 		}
-		else if (texture.channels == 4)
-		{
+		if (texture.channels == 4) {
 			return CreateGLTexture(texture, GL_RGBA, GL_RGBA8);
 		}
 
@@ -113,7 +114,14 @@ namespace {
 		loadedMaterialData.normalMap = LoadTexture(material.normal_map);
 		loadedMaterialData.baseColor = material.base_color;
 		loadedMaterialData.textureMask = material.texture_mask;
-		// loadedMaterialData.shader = core::graphics::Shader(loadedMaterialData.diffuseTexture);
+		if (material.vertex_shader != -1 && material.fragment_shader != -1) {
+			std::cout << "Creating shader program for material." << std::endl;
+			std::cout << "Vertex Shader ID: " << material.vertex_shader << ", Fragment Shader ID: " << material.fragment_shader << std::endl;
+			loadedMaterialData.shader_program =
+					managers::ShaderManager::GetInstance().CreateShaderProgram(
+						material.vertex_shader,
+						material.fragment_shader);
+		}
 		return loadedMaterialData;
 	}
 
@@ -178,22 +186,8 @@ namespace {
 } // namespace
 
 Renderer::Renderer() {
-    // InitShaders();
 	InitGL();
 	InitBuffers();
-}
-
-void Renderer::InitShaders() {
-	std::vector<char> fragmentShaderBuffer = ReadShader("../src/shaders/defaultfragmentshader.glsl");
-	std::vector<char> vertexShaderBuffer = ReadShader("../src/shaders/defaultvertexshader.glsl");
-	default_shader_program_ = CreateDefaultShaderProgram(fragmentShaderBuffer, vertexShaderBuffer);
-
-	
-	// std::vector<char> minimapFragmentShaderBuffer = ReadShader("../src/shaders/minimap_fragment_shader.glsl");
-	// std::vector<char> minimapVertexShaderBuffer = ReadShader("../src/shaders/minimap_vertex_shader.glsl");
-	// minimap_shader_program_ = CreateDefaultShaderProgram(minimapFragmentShaderBuffer, minimapVertexShaderBuffer);
-
-	glUseProgram(default_shader_program_);
 }
 
 void Renderer::InitBuffers() {
@@ -201,7 +195,6 @@ void Renderer::InitBuffers() {
     glNamedBufferStorage(PointLightBuffer, sizeof(DrawableLight) * kMaxLightsCount, nullptr, GL_DYNAMIC_STORAGE_BIT);
     mappedLightBuffer = glMapNamedBuffer(PointLightBuffer, GL_WRITE_ONLY);
 }
-
 
 void Renderer::LoadModel(const graphics::Model& model)
 {
@@ -224,22 +217,7 @@ void Renderer::LoadModel(const graphics::Model& model)
 void Renderer::Draw(const std::vector <Drawable>& drawables,
 					const std::vector <DrawableLight>& lights,
 					const ecs::EntityID camera_id) {
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, PointLightBuffer);
-	if (lights.size() > kMaxLightsCount) {
-		std::cerr << "Warning: Exceeding maximum number of lights. Some lights will be ignored." << std::endl;
-	}
-
-	int truncatedLightsSize = std::min((int)lights.size(), (int)kMaxLightsCount);
-	glUniform1i(7, truncatedLightsSize);
-	glNamedBufferSubData(core::render::PointLightBuffer, 0, sizeof(core::render::DrawableLight) * truncatedLightsSize, lights.data());
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, core::render::PointLightBuffer);
-
-	attributes::Camera& active_camera_attr = core::ecs::ECSManager::GetInstance().GetAttribute<attributes::Camera>(camera_id);
-    glUniformMatrix4fv(1, 1, GL_FALSE, &active_camera_attr.view_matrix[0][0]);
-    glUniformMatrix4fv(2, 1, GL_FALSE, &active_camera_attr.projection_matrix[0][0]);
-	attributes::Transform& camera_transform = core::ecs::ECSManager::GetInstance().GetAttribute<attributes::Transform>(camera_id);
-    glUniform3fv(4, 1, glm::value_ptr(camera_transform.position));
-
+						
     for (const Drawable& drawable : drawables)
     {
         RenderModelData modelData = id_to_render_data_[drawable.model_id];
@@ -250,11 +228,35 @@ void Renderer::Draw(const std::vector <Drawable>& drawables,
         for (const graphics::Model::MeshInstance& meshInstance : meshInstances)
         {
             glm::mat4 modelMatrix = meshInstance.transformation_matrix * drawable.model_matrix;
-            glUniformMatrix4fv(0, 1, GL_FALSE, &modelMatrix[0][0]);
             const RenderMeshData& meshData = meshDatas[meshInstance.mesh_index];
             const RenderMaterialData& materialData = materialDatas[meshInstance.material_index];
-
+			
 			glUseProgram(materialData.shader_program.id);
+			
+			// TODO: Fix this extremely inefficient mess
+			// This has been done to correctly switch shaders
+			// Also keep in mind freeing openGL resources later for shaders (i.e. when creating
+			// new shader programs for materials)
+
+            glUniformMatrix4fv(0, 1, GL_FALSE, &modelMatrix[0][0]);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, PointLightBuffer);
+			if (lights.size() > kMaxLightsCount) {
+				std::cerr << "Warning: Exceeding maximum number of lights. Some lights will be ignored." << std::endl;
+			}
+
+			int truncatedLightsSize = std::min((int)lights.size(), (int)kMaxLightsCount);
+			glUniform1i(7, truncatedLightsSize);
+			glNamedBufferSubData(core::render::PointLightBuffer, 0, sizeof(core::render::DrawableLight) * truncatedLightsSize, lights.data());
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, core::render::PointLightBuffer);
+
+			attributes::Camera& active_camera_attr = core::ecs::ECSManager::GetInstance().GetAttribute<attributes::Camera>(camera_id);
+			glUniformMatrix4fv(1, 1, GL_FALSE, &active_camera_attr.view_matrix[0][0]);
+			glUniformMatrix4fv(2, 1, GL_FALSE, &active_camera_attr.projection_matrix[0][0]);
+			attributes::Transform& camera_transform = core::ecs::ECSManager::GetInstance().GetAttribute<attributes::Transform>(camera_id);
+			glUniform3fv(4, 1, glm::value_ptr(camera_transform.position));
+
+			glViewport(0, 0, active_camera_attr.width, active_camera_attr.height);
+
 
             glUniform4fv(5, 1, glm::value_ptr(materialData.baseColor));
             glUniform1i(6, materialData.textureMask);

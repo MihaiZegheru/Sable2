@@ -13,7 +13,7 @@ struct ShaderProgram {
 	GLuint id;
 
 	ShaderProgram() = default;
-	explicit ShaderProgram(GLuint shader_program_id) : id(shader_program_id) {}
+	ShaderProgram(GLuint shader_program_id) : id(shader_program_id) {}
 
 	inline void SetMat4(const std::string_view name, const GLfloat* value) const {
 		GLint location = glGetUniformLocation(id, name.data());

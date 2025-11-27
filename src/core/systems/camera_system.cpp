@@ -41,9 +41,28 @@ void CameraSystem::TickAllArchetypes(float delta_time) {
 				camera.view_matrix = rotation * translation;
 			}
 
+			if (camera.type == attributes::CameraType::kOrthographic) {
+				if (camera.scope == attributes::CameraScope::kUI) {
+					camera.projection_matrix = glm::ortho(
+						0.0f, static_cast<float>(camera.width),
+						0.0f, static_cast<float>(camera.height),
+						camera.near_plane,
+						camera.far_plane
+					);
+				} else if (camera.scope == attributes::CameraScope::kTexture) {
+					camera.projection_matrix = glm::ortho(
+						-camera.ortho_width / 2.0f, camera.ortho_width / 2.0f,
+						-camera.ortho_height / 2.0f, camera.ortho_height / 2.0f,
+						camera.near_plane,
+						camera.far_plane
+					);
+				}
+			} else {
+				
 			// Update projection matrix based on FOV and aspect ratio (assuming 16:9 here)
-			float aspect_ratio = 16.0f / 9.0f;
-			camera.projection_matrix = glm::perspective(glm::radians(camera.fov), aspect_ratio, camera.near_plane, camera.far_plane);
+				float aspect_ratio = 16.0f / 9.0f;
+				camera.projection_matrix = glm::perspective(glm::radians(camera.fov), aspect_ratio, camera.near_plane, camera.far_plane);
+			}
 		});
 	}
 }

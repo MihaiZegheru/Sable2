@@ -10,6 +10,7 @@ target_link_libraries(trains PRIVATE
 	attributes
 	assetloader
 	time
+	graphics
 	train_managers
 	trains_systems
 	trains_attributes

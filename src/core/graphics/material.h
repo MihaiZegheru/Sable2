@@ -13,8 +13,8 @@ struct Material {
 	glm::vec4 base_color;
 	int texture_mask;
 	
-	std::string vertex_shader_path;
-	std::string fragment_shader_path;
+	GLuint vertex_shader = -1;
+	GLuint fragment_shader = -1;
 };
 } // namespace core::graphics
 
