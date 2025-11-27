@@ -83,8 +83,5 @@ build/*
 # CLion projects
 *.cbp
 
-# Assets
-res/*
-
 # VS Code
 .vscode/
