@@ -33,11 +33,11 @@ public:
 	// T must be derived from System.
 	template <typename T, typename... Attributes>
     	requires std::is_base_of_v<ISystem, T>
-	void RegisterSystem() {
+	void RegisterSystem(SystemPriority priority = SystemPriority::kDefaultPriority) {
 		ArchetypeSignature signature;
 		((signature.set(GetAttributeType<Attributes>())), ...);
 
-		system_manager_.RegisterSystem<T>(signature);
+		system_manager_.RegisterSystem<T>(signature, priority);
 	}
 
 	// Generates an archetype signature for the given attribute types.

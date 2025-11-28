@@ -92,22 +92,22 @@ void RegisterAttributesAndSystems() {
 
 	ecs_manager.RegisterSystem<core::systems::CameraSystem,
 							   core::attributes::Transform,
-							   core::attributes::Camera>();
+							   core::attributes::Camera>(core::ecs::SystemPriority::kPreRender);
 
 	ecs_manager.RegisterSystem<core::systems::RenderSystem,
 							   core::attributes::Transform,
 							   core::attributes::StaticMesh,
 							   core::attributes::Camera,
-							   core::attributes::Light>();
+							   core::attributes::Light>(core::ecs::SystemPriority::kRender);
 
 	ecs_manager.RegisterSystem<trains::systems::TrainSystem,
 							   core::attributes::Transform,
 							   core::attributes::StaticMesh,
-							   trains::attributes::Train>();
+							   trains::attributes::Train>(core::ecs::SystemPriority::kPrePhysics);
 
 	ecs_manager.RegisterSystem<core::systems::FollowSystem,
 							   core::attributes::Transform,
-							   core::attributes::Follow>();
+							   core::attributes::Follow>(core::ecs::SystemPriority::kPrePhysics);
 							   
 	ecs_manager.RegisterSystem<trains::systems::BankSystem,
 							   core::attributes::Transform,
@@ -119,7 +119,7 @@ void RegisterAttributesAndSystems() {
 
 	ecs_manager.RegisterSystem<trains::systems::CollisionSystem,
 							   core::attributes::Transform,
-							   trains::attributes::BoxCollider>();
+							   trains::attributes::BoxCollider>(core::ecs::SystemPriority::kPhisics);
 }
 
 int main() {

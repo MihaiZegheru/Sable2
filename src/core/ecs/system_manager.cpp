@@ -4,6 +4,8 @@
 #include "system.h"
 #include "types.h"
 
+#include <iostream>
+
 namespace core::ecs {
 
 void SystemManager::OnArchetypeCreated(Archetype& archetype) {
@@ -29,16 +31,15 @@ void SystemManager::RebuildArchetypeCache(ArchetypeManager& archetype_manager) {
 }
 
 void SystemManager::StartSystems() {
-	for (auto& [type, system] : systems_) {
-		system->StartAllArchetypes();
+	for (auto& ordered_system : ordered_systems_) {
+		ordered_system.system.get().StartAllArchetypes();
 	}
 }
 
 void SystemManager::UpdateSystems(float delta_time) {
-	// TODO: Add system prioritization.
-
-	for (auto& [type, system] : systems_) {
-		system->TickAllArchetypes(delta_time);
+	for (auto& ordered_system : ordered_systems_) {
+		std::cout << "Updating system of type: " << typeid(ordered_system.system.get()).name() << std::endl;
+		ordered_system.system.get().TickAllArchetypes(delta_time);
 	}
 }
 } // namespace core::ecs

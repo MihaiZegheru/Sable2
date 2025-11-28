@@ -1,6 +1,8 @@
 #ifndef CORE_SYSTEM_MANAGER_H
 #define CORE_SYSTEM_MANAGER_H
 
+#include <algorithm>
+#include <cassert>
 #include <memory>
 #include <typeindex>
 #include <unordered_map>
@@ -13,6 +15,23 @@
 
 namespace core::ecs {
 
+// Enum for system priority levels.
+enum class SystemPriority : int {
+	kPrePhysics = 0,
+	kPhisics = 5,
+	kPostPhysics = 10,
+	kPreRender = 20,
+	kRender = 25,
+	kPostRender = 30,
+	kDefaultPriority = 35
+};
+
+// Struct to hold a system along with its priority for ordered execution.
+struct OrderedSystem {
+	SystemPriority priority;
+	std::reference_wrapper<ISystem> system;
+};
+
 class SystemManager {
 public:
 	explicit SystemManager() = default;
@@ -20,7 +39,7 @@ public:
 	// Registers a system of type T with the given archetype signature.
 	// T must be derived from ISystem.
 	template <typename T, typename = std::enable_if_t<std::is_base_of_v<ISystem, T>>>
-	void RegisterSystem(ArchetypeSignature& signature) {
+	void RegisterSystem(ArchetypeSignature& signature, SystemPriority priority) {
 		std::type_index type(typeid(T));
 
 		assert(system_signatures_.find(type) == system_signatures_.end() &&
@@ -29,6 +48,12 @@ public:
 		auto system = std::make_unique<T>();
 		systems_.insert({type, std::move(system)});
 		system_signatures_[type] = signature;
+
+		ordered_systems_.push_back({priority, *systems_[type]});
+		std::sort(ordered_systems_.begin(), ordered_systems_.end(),
+			[](const OrderedSystem& a, const OrderedSystem& b) {
+				return a.priority < b.priority;
+		});
 	}
 
 	// Calls the Start function for all registered systems.
@@ -50,6 +75,9 @@ private:
 	std::unordered_map<std::type_index, ArchetypeSignature> system_signatures_;
     // Cache archetypes for each system for quick access during updates
     std::unordered_map<std::type_index, std::vector<std::reference_wrapper<Archetype>>> system_archetypes_;
+
+	// Ordered list of systems for prioritized execution.
+	std::vector<OrderedSystem> ordered_systems_;
 };
 } // namespace core::ecs
 
