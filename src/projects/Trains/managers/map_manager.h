@@ -16,8 +16,6 @@
 
 #include "core/graphics/model.h"
 #include "core/ecs/ecs_manager.h"
-#include "core/assetloader/asset_loader_manager.h"
-#include "core/render/renderer.h"
 #include "core/ecs/types.h"
 #include "projects/Trains/types/resource_type.h"
 
@@ -244,8 +242,6 @@ private:
 	TileCoord central_bank_coord_;
 
 	core::ecs::ECSManager& ecs_manager_ = core::ecs::ECSManager::GetInstance();
-	core::assetloader::AssetLoaderManager& asset_loader_ = core::assetloader::AssetLoaderManager::GetInstance();
-	core::render::Renderer& renderer_ = core::render::Renderer::GetInstance();
 };
 } // namespace trains::managers
 

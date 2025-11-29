@@ -5,8 +5,9 @@
 #include "core/attributes/transform.h"
 #include "core/attributes/static_mesh.h"
 #include "core/managers/input_manager.h"
-#include "core/assetloader/asset_loader_manager.h"
 #include "core/graphics/model.h"
+#include "core/managers/resource_manager.h"
+#include "core/managers/asset_manager.h"
 
 #include "projects/Trains/attributes/train.h"
 #include "projects/Trains/attributes/resource_generator.h"
@@ -96,7 +97,7 @@ void TrainSystem::TickAllArchetypes(float delta_time) {
 				float distance = glm::length(direction);
 
 				// not best but okay for now - to reduce speed when bumping into some other wagon
-				train.speed = front_wagon_train.speed;
+				train.speed = front_wagon_train.speed + 0.1f;
 
 				if (!train.just_spawned) {
 					if (distance < 0.01f) {
@@ -239,15 +240,21 @@ void TrainSystem::TickAllArchetypes(float delta_time) {
 					std::cout << "Train picked up resource of type: " << static_cast<int>(resource_type) << " at tile ("
 							<< train.current_tile_coord.q << ", " << train.current_tile_coord.r << ")" << std::endl;
 
-					core::assetloader::AssetLoaderManager& asset_loader_ = core::assetloader::AssetLoaderManager::GetInstance();
-					auto wagon_model_res = asset_loader_.GetModelByPath("Train/train_wagon/train_wagon.obj");
-					size_t wagon_model_id;
-					if (wagon_model_res.has_value()) {
-						core::graphics::Model& wagon_model = *(wagon_model_res.value());
-						wagon_model_id = wagon_model.id;
-					} else {
-						std::cout << "Wagon model not found!" << std::endl;
-					}
+					// core::assetloader::AssetLoaderManager& asset_loader_ = core::assetloader::AssetLoaderManager::GetInstance();
+					// auto wagon_model_res = asset_loader_.GetModelByPath("Train/train_wagon/train_wagon.obj");
+					// size_t wagon_model_id;
+					// if (wagon_model_res.has_value()) {
+					// 	core::graphics::Model& wagon_model = *(wagon_model_res.value());
+					// 	wagon_model_id = wagon_model.id;
+					// } else {
+					// 	std::cout << "Wagon model not found!" << std::endl;
+					// }
+
+					core::managers::ResourceManager& resource_manager_ = core::managers::ResourceManager::GetInstance();
+					core::managers::AssetManager& asset_manager_ = core::managers::AssetManager::GetInstance();
+									
+					core::managers::ModelID id_wagon = asset_manager_.LoadModel("Train/train_wagon/train_wagon.obj").value();
+					resource_manager_.UploadModel(id_wagon);
 
 					//Spawn new wagon at tail and update tail
 					core::ecs::Entity new_wagon = ecs_manager_.CreateEntity();
@@ -257,13 +264,13 @@ void TrainSystem::TickAllArchetypes(float delta_time) {
 					new_wagon_transform.scale = glm::vec3(10.0f, 10.0f, 10.0f);
 					ecs_manager_.AddAttribute<core::attributes::Transform>(new_wagon.id, new_wagon_transform);
 					core::attributes::StaticMesh new_wagon_mesh;
-					new_wagon_mesh.model_id = wagon_model_id;
+					new_wagon_mesh.model_id = id_wagon;
 					ecs_manager_.AddAttribute<core::attributes::StaticMesh>(new_wagon.id, new_wagon_mesh);
 					trains::attributes::Train new_wagon_attr;
 					trains::attributes::Train& train_tail = ecs_manager_.GetAttribute<trains::attributes::Train>(train.tail);
 					new_wagon_attr.current_tile_coord = train_tail.current_tile_coord;
 					new_wagon_attr.next_tile_coord = train_tail.current_tile_coord;
-					new_wagon_attr.speed = train.speed;
+					new_wagon_attr.speed = train.speed + 0.1f;
 					new_wagon_attr.just_spawned = true;
 					new_wagon_attr.front_wagon = train.tail;
 					new_wagon_attr.disconnected = false;

@@ -1,5 +1,5 @@
 add_library(assetloader STATIC
-	asset_loader_manager.cpp
+	asset_loader.cpp
 )
 
 target_include_directories(assetloader PUBLIC ${CMAKE_SOURCE_DIR}/src)

@@ -124,7 +124,6 @@ void RenderSystem::TickAllArchetypes(float delta_time) {
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 
-
 	// Scene Pass
 	for (ecs::EntityID scene_camera_id : scene_cameras) {
 		std::vector<render::Drawable> pass_drawables;

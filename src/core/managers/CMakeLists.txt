@@ -3,6 +3,8 @@ add_library(managers STATIC
 	scene_manager.cpp
 	input_manager.cpp
 	shader_manager.cpp
+	asset_manager.cpp
+	resource_manager.cpp
 )
 
 target_include_directories(managers PUBLIC ${CMAKE_SOURCE_DIR}/src)

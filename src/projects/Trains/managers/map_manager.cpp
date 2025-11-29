@@ -10,9 +10,11 @@
 #include "core/ecs/ecs_manager.h"
 #include "core/attributes/transform.h"
 #include "core/attributes/static_mesh.h"
-#include "core/assetloader/asset_loader_manager.h"
 #include "core/render/renderer.h"
 #include "core/graphics/model.h"
+#include "core/managers/resource_manager.h"
+#include "core/managers/asset_manager.h"
+
 #include "projects/Trains/types/resource_type.h"
 #include "projects/Trains/attributes/bank.h"
 #include "projects/Trains/attributes/resource_generator.h"
@@ -21,7 +23,6 @@
 using namespace core;
 using namespace core::ecs;
 using namespace core::attributes;
-using namespace core::assetloader;
 using namespace core::render;
 using namespace core::graphics;
 using namespace trains::types;
@@ -203,6 +204,7 @@ void MapManager::PlaceBuildings() {
 				ResourceType res_type = static_cast<ResourceType>(index % kGatherPointModels.size());
 				core::attributes::StaticMesh building_mesh;
 				building_mesh.model_id = tile_models_[std::string(kGatherPointModels.at(res_type))];
+				building_mesh.model_id = 1;
 				coords_to_resource_[tile_coord] = resource_entity.id;
 				ecs_manager_.AddAttribute<core::attributes::StaticMesh>(resource_entity.id, building_mesh);
 
@@ -399,228 +401,90 @@ void MapManager::GenerateMap(int radius) {
 }
 
 void MapManager::LoadTileModels() {
-	auto model_res = asset_loader_.GetModelByPath("Tiles/Debug/debug_tile_empty/debug_tile_empty.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-		tile_models_["debug_tile_empty"] = model.id;
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	core::managers::ResourceManager& resource_manager_ = core::managers::ResourceManager::GetInstance();
+	core::managers::AssetManager& asset_manager_ = core::managers::AssetManager::GetInstance();
 
-	model_res = asset_loader_.GetModelByPath("Tiles/water_tile/water_tile.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-		tile_models_["water_tile"] = model.id;
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	core::managers::ModelID id = asset_manager_.LoadModel("Tiles/Debug/debug_tile_empty/debug_tile_empty.obj").value();
+	resource_manager_.UploadModel(id);
+	tile_models_["debug_tile_empty"] = id;
 
-	model_res = asset_loader_.GetModelByPath("Tiles/Debug/debug_tile_nv_e/debug_tile_nv_e.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-		tile_models_["debug_tile_nv_e"] = model.id;
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	id = asset_manager_.LoadModel("Tiles/water_tile/water_tile.obj").value();
+	resource_manager_.UploadModel(id);
+	tile_models_["water_tile"] = id;
 
-	model_res = asset_loader_.GetModelByPath("Tiles/Debug/debug_tile_nv_se/debug_tile_nv_se.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-		tile_models_["debug_tile_nv_se"] = model.id;
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	id = asset_manager_.LoadModel("Tiles/Debug/debug_tile_nv_e/debug_tile_nv_e.obj").value();
+	resource_manager_.UploadModel(id);
+	tile_models_["debug_tile_nv_e"] = id;
 
-	model_res = asset_loader_.GetModelByPath("Tiles/Debug/debug_tile_sv_e/debug_tile_sv_e.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-		tile_models_["debug_tile_sv_e"] = model.id;
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	id = asset_manager_.LoadModel("Tiles/Debug/debug_tile_nv_se/debug_tile_nv_se.obj").value();
+	resource_manager_.UploadModel(id);
+	tile_models_["debug_tile_nv_se"] = id;
 
-	model_res = asset_loader_.GetModelByPath("Tiles/Debug/debug_tile_sv_ne/debug_tile_sv_ne.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-		tile_models_["debug_tile_sv_ne"] = model.id;
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	id = asset_manager_.LoadModel("Tiles/Debug/debug_tile_sv_e/debug_tile_sv_e.obj").value();
+	resource_manager_.UploadModel(id);
+	tile_models_["debug_tile_sv_e"] = id;
 
-	model_res = asset_loader_.GetModelByPath("Tiles/Debug/debug_tile_v_e/debug_tile_v_e.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-		tile_models_["debug_tile_v_e"] = model.id;
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	id = asset_manager_.LoadModel("Tiles/Debug/debug_tile_sv_ne/debug_tile_sv_ne.obj").value();
+	resource_manager_.UploadModel(id);
+	tile_models_["debug_tile_sv_ne"] = id;
 
-	model_res = asset_loader_.GetModelByPath("Tiles/Debug/debug_tile_v_ne/debug_tile_v_ne.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-		tile_models_["debug_tile_v_ne"] = model.id;
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	id = asset_manager_.LoadModel("Tiles/Debug/debug_tile_v_e/debug_tile_v_e.obj").value();
+	resource_manager_.UploadModel(id);
+	tile_models_["debug_tile_v_e"] = id;
 
-	model_res = asset_loader_.GetModelByPath("Tiles/Debug/debug_tile_v_se/debug_tile_v_se.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-		tile_models_["debug_tile_v_se"] = model.id;
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	id = asset_manager_.LoadModel("Tiles/Debug/debug_tile_v_se/debug_tile_v_se.obj").value();
+	resource_manager_.UploadModel(id);
+	tile_models_["debug_tile_v_se"] = id;
 
-	model_res = asset_loader_.GetModelByPath("Tiles/Debug/debug_tile_nv_sv/debug_tile_nv_sv.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-		tile_models_["debug_tile_nv_sv"] = model.id;
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	id = asset_manager_.LoadModel("Tiles/Debug/debug_tile_nv_sv/debug_tile_nv_sv.obj").value();
+	resource_manager_.UploadModel(id);
+	tile_models_["debug_tile_nv_sv"] = id;
 
-	model_res = asset_loader_.GetModelByPath("Tiles/Debug/debug_tile_ne_se/debug_tile_ne_se.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-		tile_models_["debug_tile_ne_se"] = model.id;
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	id = asset_manager_.LoadModel("Tiles/Debug/debug_tile_ne_se/debug_tile_ne_se.obj").value();
+	resource_manager_.UploadModel(id);
+	tile_models_["debug_tile_ne_se"] = id;
 
-	model_res = asset_loader_.GetModelByPath("Tiles/Debug/debug_tile_station/debug_tile_station.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-		tile_models_["debug_tile_station"] = model.id;
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	id = asset_manager_.LoadModel("Tiles/Debug/debug_tile_station/debug_tile_station.obj").value();
+	resource_manager_.UploadModel(id);
+	tile_models_["debug_tile_station"] = id;
 
-	model_res = asset_loader_.GetModelByPath("Rails/rail_simple/rail_simple.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-		tile_models_["rail_simple"] = model.id;
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	id = asset_manager_.LoadModel("Rails/rail_simple/rail_simple.obj").value();
+	resource_manager_.UploadModel(id);
+	tile_models_["rail_simple"] = id;
 
-	model_res = asset_loader_.GetModelByPath("Tiles/field_tile/field_tile.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-		tile_models_["field_tile"] = model.id;
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	id = asset_manager_.LoadModel("Tiles/field_tile/field_tile.obj").value();
+	resource_manager_.UploadModel(id);
+	tile_models_["field_tile"] = id;
 
-	model_res = asset_loader_.GetModelByPath("Tiles/field_tile_variation01/field_tile_variation01.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-		tile_models_["field_tile_variation01"] = model.id;
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	id = asset_manager_.LoadModel("Tiles/field_tile_variation01/field_tile_variation01.obj").value();
+	resource_manager_.UploadModel(id);
+	tile_models_["field_tile_variation01"] = id;
 
-	model_res = asset_loader_.GetModelByPath("Tiles/field_tile_variation02/field_tile_variation02.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-		tile_models_["field_tile_variation02"] = model.id;
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	id = asset_manager_.LoadModel("Tiles/field_tile_variation02/field_tile_variation02.obj").value();
+	resource_manager_.UploadModel(id);
+	tile_models_["field_tile_variation02"] = id;
 
-	model_res = asset_loader_.GetModelByPath("Buildings/central_bank/central_bank.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-		tile_models_["central_bank"] = model.id;
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	id = asset_manager_.LoadModel("Buildings/central_bank/central_bank.obj").value();
+	resource_manager_.UploadModel(id);
+	tile_models_["central_bank"] = id;
 
-	model_res = asset_loader_.GetModelByPath("Resources/stone/stone.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	core::managers::ModelID stone_id = asset_manager_.LoadModel("Resources/stone/stone.obj").value();
+	resource_manager_.UploadModel(stone_id);
+	resource_models_[ResourceType::kStone] = stone_id;
 
-	model_res = asset_loader_.GetModelByPath("Resources/wood/wood.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	core::managers::ModelID wood_id = asset_manager_.LoadModel("Resources/wood/wood.obj").value();
+	resource_manager_.UploadModel(wood_id);
+	resource_models_[ResourceType::kWood] = wood_id;
 
-	model_res = asset_loader_.GetModelByPath("Resources/gold/gold.obj");
-	if (model_res.has_value()) {
-		Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	core::managers::ModelID gold_id = asset_manager_.LoadModel("Resources/gold/gold.obj").value();
+	resource_manager_.UploadModel(gold_id);
+	resource_models_[ResourceType::kGold] = gold_id;
 
 	resource_models_ = {
-		{ ResourceType::kWood, asset_loader_.GetModelByPath("Resources/stone/stone.obj").value()->id },
-		{ ResourceType::kStone, asset_loader_.GetModelByPath("Resources/wood/wood.obj").value()->id },
-		{ ResourceType::kFood, asset_loader_.GetModelByPath("Resources/gold/gold.obj").value()->id },
-		{ ResourceType::kGold, asset_loader_.GetModelByPath("Resources/stone/stone.obj").value()->id }
+		{ ResourceType::kWood, wood_id},
+		{ ResourceType::kStone, stone_id },
+		{ ResourceType::kFood, gold_id },
+		{ ResourceType::kGold, gold_id }
 	};
 }
 } // namespace trains::managers

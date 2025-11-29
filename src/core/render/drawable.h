@@ -3,8 +3,6 @@
 
 #include <glm/glm.hpp>
 
-#include "core/assetloader/asset_loader_manager.h"
-
 namespace core::render {
 
 struct Drawable {

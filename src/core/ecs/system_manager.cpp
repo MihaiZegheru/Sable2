@@ -4,8 +4,6 @@
 #include "system.h"
 #include "types.h"
 
-#include <iostream>
-
 namespace core::ecs {
 
 void SystemManager::OnArchetypeCreated(Archetype& archetype) {
@@ -38,7 +36,6 @@ void SystemManager::StartSystems() {
 
 void SystemManager::UpdateSystems(float delta_time) {
 	for (auto& ordered_system : ordered_systems_) {
-		std::cout << "Updating system of type: " << typeid(ordered_system.system.get()).name() << std::endl;
 		ordered_system.system.get().TickAllArchetypes(delta_time);
 	}
 }

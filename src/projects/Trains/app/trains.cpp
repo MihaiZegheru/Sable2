@@ -9,7 +9,6 @@
 #include "core/systems/render_system.h"
 #include "core/render/renderer.h"
 #include "core/platform/window.h"
-#include "core/assetloader/asset_loader_manager.h"
 #include "core/attributes/static_mesh.h"
 #include "core/time/apptime.h"
 #include "core/attributes/follow.h"
@@ -22,6 +21,8 @@
 #include "core/graphics/model.h"
 #include "core/graphics/texture.h"
 #include "core/graphics/material.h"
+#include "core/managers/resource_manager.h"
+#include "core/managers/asset_manager.h"
 
 #include "projects/Trains/managers/map_manager.h"
 #include "projects/Trains/attributes/train.h"
@@ -132,31 +133,16 @@ int main() {
 	core::managers::SceneManager& scene_manager = core::managers::SceneManager::GetInstance();
 	trains::managers::CollisionManager& collision_manager = trains::managers::CollisionManager::GetInstance();
 
-	core::assetloader::AssetLoaderManager& asset_loader_ = core::assetloader::AssetLoaderManager::GetInstance();
-	core::render::Renderer& renderer_ = core::render::Renderer::GetInstance();
-	auto model_res = asset_loader_.GetModelByPath("Train/train_locomotive/train_locomotive.obj");
-	size_t model_id;
-	if (model_res.has_value()) {
-		graphics::Model& model = *(model_res.value());
-		std::cout << "Model loaded with ID: " << model.id << std::endl;
-		asset_loader_.LoadModel(model);
-		renderer_.LoadModel(model);
-		model_id = model.id;
-	} else {
-		std::cout << "Model not found!" << std::endl;
-	}
+	core::managers::ResourceManager& resource_manager_ = core::managers::ResourceManager::GetInstance();
+	core::managers::AssetManager& asset_manager_ = core::managers::AssetManager::GetInstance();
 
-	auto wagon_model_res = asset_loader_.GetModelByPath("Train/train_wagon/train_wagon.obj");
-	size_t wagon_model_id;
-	if (wagon_model_res.has_value()) {
-		graphics::Model& wagon_model = *(wagon_model_res.value());
-		std::cout << "Wagon model loaded with ID: " << wagon_model.id << std::endl;
-		asset_loader_.LoadModel(wagon_model);
-		renderer_.LoadModel(wagon_model);
-		wagon_model_id = wagon_model.id;
-	} else {
-		std::cout << "Wagon model not found!" << std::endl;
-	}
+	core::managers::ModelID id_wagon = asset_manager_.LoadModel("Train/train_wagon/train_wagon.obj").value();
+	resource_manager_.UploadModel(id_wagon);
+	std::cout << "Loaded model with ID: " << id_wagon << std::endl;
+
+	core::managers::ModelID id_locomotive = asset_manager_.LoadModel("Train/train_locomotive/train_locomotive.obj").value();
+	resource_manager_.UploadModel(id_locomotive);
+	std::cout << "Loaded model with ID: " << id_locomotive << std::endl;
 
 	core::ecs::ECSManager& ecs_manager = core::ecs::ECSManager::GetInstance();
 	core::managers::ShaderManager& shader_manager = core::managers::ShaderManager::GetInstance();
@@ -176,7 +162,7 @@ int main() {
 	train_transform.scale = glm::vec3(10.0f, 10.0f, 10.0f);
 	ecs_manager.AddAttribute<core::attributes::Transform>(train.id, train_transform);
 	core::attributes::StaticMesh train_mesh;
-	train_mesh.model_id = model_id;
+	train_mesh.model_id = id_locomotive;
 	train_mesh.culling_mask = kGameCullingLayerDefault;
 	ecs_manager.AddAttribute<core::attributes::StaticMesh>(train.id, train_mesh);
 	trains::attributes::Train train_attr;
@@ -313,7 +299,9 @@ int main() {
 	minimap_model.meshes.push_back(minimap_mesh);
 	minimap_model.materials.push_back(minimap_material);
 	minimap_model.mesh_instances.push_back({0, 0, glm::mat4(1.0f)});
-	renderer_.LoadModel(minimap_model);
+
+	core::managers::ModelID id = asset_manager_.LoadModel(minimap_model);
+	resource_manager_.UploadModel(id);
 
 	core::ecs::Entity minimap_entity = ecs_manager.CreateEntity();
 	core::attributes::Transform minimap_entity_transform;
@@ -321,7 +309,7 @@ int main() {
 	minimap_entity_transform.scale = glm::vec3(1.0f, 1.0f, 1.0f);
 	ecs_manager.AddAttribute<core::attributes::Transform>(minimap_entity.id, minimap_entity_transform);
 	core::attributes::StaticMesh minimap_entity_mesh;
-	minimap_entity_mesh.model_id = minimap_model.id;
+	minimap_entity_mesh.model_id = id;
 	minimap_entity_mesh.culling_mask = kGameCullingLayerUI;
 	ecs_manager.AddAttribute<core::attributes::StaticMesh>(minimap_entity.id, minimap_entity_mesh);
 
@@ -342,10 +330,15 @@ int main() {
 	camera_ui.ortho_height = WINDOW_HEIGHT;
 	ecs_manager.AddAttribute<core::attributes::Camera>(ui_camera.id, camera_ui);
 
+	std::cout << "EntityID of camera: " << ui_camera.id << std::endl;
+
 	ecs_manager.StartSystems();
     Time::GetInstance().Init(glfwGetTime());
 	while (!glfwWindowShouldClose(window.GetInstance())) {
         Time::GetInstance().ComputeDeltaTime(glfwGetTime());
+		std::cout << "FPS: " << 1.0f / Time::GetInstance().GetDeltaTime() << std::endl;
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		inputManager.Listen(window.GetInstance());
 		collision_manager.ComputeCollisions();
 
