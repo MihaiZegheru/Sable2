@@ -4,6 +4,7 @@
 namespace trains::types {
 
 enum class ResourceType {
+	kDefault = -1,
     kFood = 0,
     kWood = 1,
     kStone = 2,

@@ -336,7 +336,7 @@ int main() {
     Time::GetInstance().Init(glfwGetTime());
 	while (!glfwWindowShouldClose(window.GetInstance())) {
         Time::GetInstance().ComputeDeltaTime(glfwGetTime());
-		std::cout << "FPS: " << 1.0f / Time::GetInstance().GetDeltaTime() << std::endl;
+		// std::cout << "FPS: " << 1.0f / Time::GetInstance().GetDeltaTime() << "\n";
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		inputManager.Listen(window.GetInstance());

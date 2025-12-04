@@ -11,6 +11,7 @@ namespace core::attributes {
 
 struct StaticMesh : IRenderable {
 	uint16_t model_id;
+	bool is_visible = true;
 };
 } // namespace core::attributes
 

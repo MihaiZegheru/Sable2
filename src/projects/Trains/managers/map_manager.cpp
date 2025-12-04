@@ -192,6 +192,7 @@ void MapManager::PlaceBuildings() {
 
 				trains::attributes::Bank bank_attr;
 				ecs_manager_.AddAttribute<trains::attributes::Bank>(central_bank_entity.id, bank_attr);
+				coords_to_bank_[tile_coord] = central_bank_entity.id;
 			} else {
 				// place resources in order
 				core::ecs::Entity resource_entity = ecs_manager_.CreateEntity();

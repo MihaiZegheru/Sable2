@@ -20,12 +20,17 @@ struct Bank : public core::ecs::IAttribute {
 		glm::vec3(5.0f, 6.0f, 10.0f),
 		glm::vec3(9.0f, 8.0f, 9.0f)
 	};
-	std::unordered_set<trains::types::ResourceType> resources_to_gather;
+
+	trains::types::ResourceType resources_to_gather[4] = {
+		trains::types::ResourceType::kDefault,
+		trains::types::ResourceType::kDefault,
+		trains::types::ResourceType::kDefault,
+		trains::types::ResourceType::kDefault
+	};
 
 	trains::managers::MapManager& map_manager_ = trains::managers::MapManager::GetInstance();
 
-	Bank() : display_points{},
-			 resources_to_gather{} {}
+	Bank() : display_points{} {}
 };
 } // namespace trains::attributes
 

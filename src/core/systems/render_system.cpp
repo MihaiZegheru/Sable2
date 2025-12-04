@@ -72,6 +72,9 @@ void RenderSystem::TickAllArchetypes(float delta_time) {
 		archetype.ForEach([this, delta_time, &archetype, &drawables](ecs::EntityID entity_id, size_t index) {
 			attributes::Transform& transform = ecs_manager_.GetAttribute<attributes::Transform>(entity_id);
 			attributes::StaticMesh& static_mesh = ecs_manager_.GetAttribute<attributes::StaticMesh>(entity_id);
+			if (!static_mesh.is_visible) {
+				return;
+			}
 
 			render::Drawable drawable;
 			drawable.model_id = static_mesh.model_id;

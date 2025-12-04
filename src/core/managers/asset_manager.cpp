@@ -23,6 +23,7 @@ bool IsModelExtension(const std::string& extension) {
 
 AssetManager::AssetManager() {
 	ParseResourcesFolder(kResourcesFolder);
+	id_to_model_[0] = nullptr;
 }
 
 void AssetManager::ParseResourcesFolder(std::string_view folder_path) {

@@ -211,6 +211,26 @@ public:
 		throw std::runtime_error("ResourceType not found in resource_models_");
 	}
 
+	inline std::optional<core::ecs::EntityID> GetBankEntityAt(const TileCoord& coord) const {
+		auto it = coords_to_bank_.find(coord);
+		if (it != coords_to_bank_.end()) {
+			return it->second;
+		}
+		return std::nullopt;
+	}
+
+	inline bool IsBankAskingForResourceType(ResourceType res_type) const {
+		return bank_ask_resource_types_.find(res_type) != bank_ask_resource_types_.end();
+	}
+
+	inline void SetBankAskingForResourceType(ResourceType res_type, bool asking) {
+		if (asking) {
+			bank_ask_resource_types_.insert(res_type);
+		} else {
+			bank_ask_resource_types_.erase(res_type);
+		}
+	}
+
 private:
 	MapManager() = default;
 
@@ -238,6 +258,9 @@ private:
 
 	std::unordered_map<TileCoord, std::vector<TileCoord>, std::hash<TileCoord>> track_graph_;
 	std::unordered_map<TileCoord, core::ecs::EntityID, std::hash<TileCoord>> coords_to_resource_;
+	std::unordered_map<TileCoord, core::ecs::EntityID, std::hash<TileCoord>> coords_to_bank_;
+
+	std::unordered_multiset<ResourceType> bank_ask_resource_types_;
 
 	TileCoord central_bank_coord_;
 

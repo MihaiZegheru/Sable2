@@ -74,7 +74,8 @@ void TrainSystem::TickAllArchetypes(float delta_time) {
 	for (auto& archetype_ref : archetypes) {
 		core::ecs::Archetype& archetype = archetype_ref.get();
 		archetype.ForEach([this, delta_time, &archetype](core::ecs::EntityID entity_id, size_t index) {
-			// std::cout << "Ticking Train Entity ID: " << entity_id << std::endl;
+
+			std::cout << "Ticking Train Entity ID: " << entity_id << std::endl;
 			trains::attributes::Train& train = ecs_manager_.GetAttribute<trains::attributes::Train>(entity_id);
 			if (!train.is_locomotive) {
 				if (train.disconnected) {
@@ -274,6 +275,7 @@ void TrainSystem::TickAllArchetypes(float delta_time) {
 					new_wagon_attr.just_spawned = true;
 					new_wagon_attr.front_wagon = train.tail;
 					new_wagon_attr.disconnected = false;
+					new_wagon_attr.resource_type = resource_type;
 					if (train.tail == entity_id) {
 						new_wagon_attr.distance_to_front_wagon = first_wagon_distance;
 					} else {
@@ -298,6 +300,26 @@ void TrainSystem::TickAllArchetypes(float delta_time) {
 					std::cout << "New wagon spawned with ID: " << new_wagon.id << " connected to front wagon ID: " << train.tail << std::endl;
 
 					train.tail = new_wagon.id;
+				}
+				// Handle Bank drop
+				if (auto bank_entity_opt = map_manager_.GetBankEntityAt(train.current_tile_coord); bank_entity_opt.has_value()) {
+					std::cout << "Train reached Bank at tile ("
+							<< train.current_tile_coord.q << ", " << train.current_tile_coord.r << ")" << std::endl;
+					while (train.tail != entity_id) {
+						std::cout << "Train is dropping resources at Bank" << std::endl;
+						trains::attributes::Train& tail_train = ecs_manager_.GetAttribute<trains::attributes::Train>(train.tail);
+						
+						if (map_manager_.IsBankAskingForResourceType(tail_train.resource_type)) {
+							map_manager_.SetBankAskingForResourceType(tail_train.resource_type, false);
+							ecs_manager_.DestroyEntity(tail_train.resource_entity);
+							ecs_manager_.DestroyEntity(train.tail);
+							collision_manager_.RemoveCollidable(train.tail);
+							train.tail = tail_train.front_wagon;
+							std::cout << "Dropped wagon with ID: " << train.tail << " at Bank." << std::endl;
+						} else {
+							break;
+						}
+					}
 				}
 
 			} else {

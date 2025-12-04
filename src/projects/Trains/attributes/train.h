@@ -30,6 +30,7 @@ struct Train : public core::ecs::IAttribute {
 	bool checked_target;
 	
 	core::ecs::EntityID resource_entity;
+	trains::types::ResourceType resource_type;
 	glm::vec3 resource_offset;
 	bool disconnected;
 
